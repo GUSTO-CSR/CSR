@@ -12,7 +12,9 @@ export default function RootLayout({
       <Providers>
         <NavigationBar />
         {children}
-        <Footer />
+        <div className="mb-3">
+          <Footer />
+        </div>
       </Providers>
     </div>
   );
