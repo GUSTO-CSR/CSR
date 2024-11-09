@@ -36,29 +36,35 @@ export default function Footer() {
 
   const logo = resolvedTheme === "light" ? whiteLogo : blackLogo;
   return (
-    <footer className="bg-primary dark:bg-secondary w-11/12 m-auto rounded-xl shadow  my-8">
-      <div className="w-full  mx-auto p-5 ">
-        <div className="lg:flex lg:items-center lg:justify-between md:flex md:items-center md:justify-between block">
-          <div className="lg:ms-5 md:ms-3">
+    <footer className="bg-primary dark:bg-secondary w-11/12 m-auto rounded-xl shadow my-8">
+      <div className="w-full mx-auto p-5">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div className="mb-4 md:mb-0">
             <a
               href="https://www.facebook.com/profile.php?id=100090924746210&mibextid=ZbWKwL"
-              className="flex items-center  "
+              className="flex items-center"
             >
               <Image
-                className=" lg:w-12 lg:h-12 md:w-10 md:h-10 w-8 h-8 cursor-pointer mb-2 me-2"
+                className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 cursor-pointer mb-2 mr-2"
                 src={logo}
                 alt="Loading Light/Dark Toggle"
                 priority={true}
                 title="Loading Light/Dark Toggle"
               />
-              <h1 className="font-bold text-lg">GUSTO CSR Program</h1>
+              <h1 className="font-bold text-lg md:text-xl lg:text-2xl">
+                GUSTO CSR Program
+              </h1>
             </a>
-            <h2 className=" font-medium ">Helps Other For Better Unity</h2>
+            <h2 className="font-medium text-sm md:text-base lg:text-lg">
+              Helps Other For Better Unity
+            </h2>
           </div>
-          <div className="flex items-center lg:pe-5 md:pe-3">
-            <div className="me-2">
-              <h2 className="font-bold">Donation</h2>
-              <div className="text-sm mt-1.5">
+          <div className="flex flex-row items-start sm:items-center gap-6">
+            <div>
+              <h2 className="font-bold text-sm md:text-base lg:text-lg">
+                Donation
+              </h2>
+              <div className="text-xs md:text-sm lg:text-base mt-1.5">
                 <p>
                   <a href="#">Previous Events</a>
                 </p>
@@ -67,9 +73,11 @@ export default function Footer() {
                 </p>
               </div>
             </div>
-            <div className="ms-2">
-              <h2 className="font-bold">Help</h2>
-              <div className="text-sm mt-1.5">
+            <div>
+              <h2 className="font-bold text-sm md:text-base lg:text-lg">
+                Help
+              </h2>
+              <div className="text-xs md:text-sm lg:text-base mt-1.5">
                 <p>
                   <a href="#">FAQs</a>
                 </p>
@@ -81,10 +89,10 @@ export default function Footer() {
           </div>
         </div>
 
-        <hr className=" border-secondary sm:mx-auto dark:border-primary my-5 " />
-        <div className="flex justify-between lg:ms-5 md:ms-3 ">
-          <div>
-            <span className="block text-sm  pb-1">
+        <hr className="border-secondary dark:border-primary my-5" />
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="text-center md:text-left mb-4 md:mb-0">
+            <span className="block text-xs md:text-sm">
               © 2024{" "}
               <a
                 href="https://www.facebook.com/profile.php?id=100090924746210&mibextid=ZbWKwL"
@@ -93,7 +101,7 @@ export default function Footer() {
                 GUSTO CSR Program
               </a>
             </span>
-            <span className="block text-xs  ">
+            <span className="block text-xs">
               Developer:{" "}
               <a
                 href="https://github.com/Aung-myat-min"
@@ -111,17 +119,23 @@ export default function Footer() {
             </span>
           </div>
 
-          <div className="lg:pe-5 md:pe-3 flex items-center">
-            <div className=" border border-black dark:border-white px-3 py-2 rounded-full me-2">
-              <a href="#" className="flex items-center">
-                <FaFacebookF className="me-2" />
+          <div className="flex gap-3">
+            <div className="border border-black dark:border-white px-3 py-2 rounded-full flex items-center">
+              <a
+                href="#"
+                className="flex items-center text-xs md:text-sm lg:text-base"
+              >
+                <FaFacebookF className="mr-2" />
                 Facebook
               </a>
             </div>
-            <div className=" border border-black dark:border-white ps-3 pe-1 py-1  rounded-full">
-              <a href="#" className="flex items-center">
+            <div className="border border-black dark:border-white ps-3 pe-1 py-1 rounded-full flex items-center">
+              <a
+                href="#"
+                className="flex items-center text-xs md:text-sm lg:text-base"
+              >
                 Contact
-                <div className="ms-2 p-2 bg-main rounded-full text-white text-sm">
+                <div className="ml-2 p-2 bg-main rounded-full text-white text-xs md:text-sm lg:text-base">
                   <FiArrowUpRight />
                 </div>
               </a>
