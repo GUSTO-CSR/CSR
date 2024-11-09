@@ -9,6 +9,7 @@ import { RiMenu4Line } from "react-icons/ri";
 import { RxCross2 } from "react-icons/rx";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
+import LanguageToggle from "./homepage/Language";
 
 export default function NavigationBar() {
   const currentRoute = usePathname();
@@ -68,7 +69,8 @@ export default function NavigationBar() {
           ))}
         </ul>
 
-        <div className="flex">
+        <div className="flex items-center">
+          <LanguageToggle />
           <div
             onClick={() => setOpen(!open)}
             className="items-center flex cursor-pointer md:hidden"
@@ -76,7 +78,7 @@ export default function NavigationBar() {
             {open ? <RxCross2 /> : <RiMenu4Line />}
           </div>
 
-          <div className="flex items-center lg:me-5 md:me-3 md:ml-8 font-semibold px-3 py-1 rounded duration-500 md:static cursor-pointer">
+          <div className="flex items-center lg:me-5 md:me-3 font-semibold px-3 py-1 rounded duration-500 md:static cursor-pointer">
             <ThemeSwitch />
           </div>
         </div>

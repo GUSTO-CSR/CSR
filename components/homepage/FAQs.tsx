@@ -1,3 +1,5 @@
+"use client"; // Add this line to mark the component as a Client Component
+
 import { useState } from "react";
 
 export default function FAQs() {
@@ -32,7 +34,7 @@ export default function FAQs() {
 
   return (
     <section className="py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-11/12  ">
         <div className="mb-16">
           <h6 className="text-lg text-indigo-600 font-medium text-center mb-2">
             FAQs
