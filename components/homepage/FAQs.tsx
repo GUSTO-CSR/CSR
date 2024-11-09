@@ -1,11 +1,12 @@
-"use client"; // Add this line to mark the component as a Client Component
+"use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function FAQs() {
-  const [activeIndex, setActiveIndex] = useState(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  const toggleAccordion = (index) => {
+  const toggleAccordion = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
@@ -34,7 +35,7 @@ export default function FAQs() {
 
   return (
     <section className="py-24">
-      <div className="mx-auto w-11/12  ">
+      <div className="mx-auto w-11/12">
         <div className="mb-16">
           <h6 className="text-lg text-indigo-600 font-medium text-center mb-2">
             FAQs
@@ -48,7 +49,7 @@ export default function FAQs() {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className={`accordion py-8 px-6 border-b border-solid border-gray-200 transition-all duration-500 rounded-2xl hover:bg-indigo-50 ${
+              className={`accordion py-8 px-6 border-b border-solid border-gray-200 transition-all duration-500 rounded-2xl hover:bg-indigo-50 ease-linear ${
                 activeIndex === index ? "bg-indigo-50" : ""
               }`}
             >
@@ -77,16 +78,22 @@ export default function FAQs() {
                   ></path>
                 </svg>
               </button>
-              {activeIndex === index && (
-                <div
-                  id={`collapse-${index}`}
-                  className="accordion-content w-full px-0 overflow-hidden"
-                >
-                  <p className="text-base text-gray-900 leading-6">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
+              <AnimatePresence initial={false}>
+                {activeIndex === index && (
+                  <motion.div
+                    id={`collapse-${index}`}
+                    className="accordion-content w-full px-0 overflow-hidden"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <p className="text-base text-gray-900 leading-6">
+                      {faq.answer}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
