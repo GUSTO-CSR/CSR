@@ -63,7 +63,7 @@ export default function Carousal() {
     <section>
       <div
         ref={slideRef}
-        className="max-w-[1920px] lg:h-[550px] md:h-[450px] xl:h-[580px] h-[280px] w-11/12 m-auto lg:mt-28 md:mt-24 xl:mt-30 mt-20  relative group"
+        className="max-w-[1920px] lg:h-[550px] md:h-[450px] xl:h-[580px] h-[280px] w-11/12 m-auto relative group"
       >
         <div
           style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
