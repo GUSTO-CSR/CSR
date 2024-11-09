@@ -6,10 +6,10 @@ import MembersImage from "@/public/images/member.png";
 import MoneyImage from "@/public/images/Money.png";
 import EventsImage from "@/public/images/events.png";
 
-export default function Card() {
-  const events = getTotalEvents();
-  const money = getTotalMoneyDonated();
-  const members = getTotalMembers();
+export default async function Card() {
+  const events = await getTotalEvents();
+  const money = await getTotalMoneyDonated();
+  const members = await getTotalMembers();
 
   return (
     <section className="w-11/12 h-fit py-36 m-auto my-8 text-center bg-blue-400 rounded-2xl text-white">
@@ -44,7 +44,7 @@ export default function Card() {
           />
           <article className="text-wrap text-center">
             <h3 className="font-bold text-2xl md:text-3xl lg:text-4xl mt-5">
-              ~{money.toLocaleString()} MMK
+              ~ {money.toLocaleString()} MMK
             </h3>
             <h3 className="font-semibold text-lg md:text-xl lg:text-2xl">
               MMK Donated
@@ -66,7 +66,7 @@ export default function Card() {
           />
           <article className="text-wrap text-center">
             <h3 className="font-bold text-2xl md:text-3xl lg:text-4xl mt-5">
-              ~{members}+
+              ~ {members}+
             </h3>
             <h3 className="font-semibold text-lg md:text-xl lg:text-2xl">
               Members Joined
