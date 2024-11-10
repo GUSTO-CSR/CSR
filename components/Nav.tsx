@@ -13,6 +13,11 @@ import LanguageToggle from "./homepage/Language";
 
 export default function NavigationBar() {
   const currentRoute = usePathname();
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const [open, setOpen] = useState(false);
+  const { resolvedTheme, setTheme, theme } = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
 
   let Links = [
     { name: "Home", link: "/" },
@@ -21,23 +26,36 @@ export default function NavigationBar() {
     { name: "Contact", link: "/contact" },
   ];
 
-  let [open, setOpen] = useState(false);
-  const { resolvedTheme, setTheme, theme } = useTheme();
-  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (theme !== undefined) {
       setIsLoading(false);
     }
   }, [theme]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollPos = window.pageYOffset;
+      setIsVisible(prevScrollPos > currentScrollPos || currentScrollPos < 10);
+      setPrevScrollPos(currentScrollPos);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [prevScrollPos]);
+
   if (isLoading) {
     return <div></div>; // Or any loading indicator
   }
 
   const logo = resolvedTheme === "light" ? whiteLogo : blackLogo;
+
   return (
-    <nav className=" sticky w-full top-0 left-0 z-[2]">
-      <div className="flex justify-between items-center w-full lg:h-20 md:h-16 h-14   m-auto bg-primary dark:bg-secondary relative">
+    <nav
+      className={`fixed w-full top-0 left-0 z-[2] transition-transform duration-300 ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
+      <div className="flex justify-between items-center w-full lg:h-20 md:h-16 h-14 m-auto bg-primary dark:bg-secondary relative">
         <Image
           className="lg:ms-8 md:ms-5 ms-3 my-2 lg:w-12 lg:h-12 md:w-10 md:h-10 w-8 h-8 cursor-pointer"
           src={logo}
@@ -47,7 +65,7 @@ export default function NavigationBar() {
         />
 
         <ul
-          className={`md:flex md:items-center md:pb-0  absolute md:static md:z-auto z-[-1] left-0 w-full md:w-auto md:pl-0 pl-9 transition-all duration-500 ease-in ${
+          className={`md:flex md:items-center md:pb-0 absolute md:static md:z-auto z-[-1] left-0 w-full md:w-auto md:pl-0 pl-9 transition-all duration-500 ease-in ${
             open
               ? "top-20 bg-primary dark:bg-secondary rounded-xl"
               : "top-[-490px]"
