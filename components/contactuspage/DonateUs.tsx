@@ -13,7 +13,7 @@ export default function DonateUs() {
           <Image src={QR} alt="our kbz pay qr" className="py-3" />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center">
-          <h1 className="text-3xl font-bold">{"(or)"} Contact Us!</h1>
+          <h1 className="text-3xl font-bold"> Contact Us!</h1>
           <h2 className="text-xl font-semibold my-4">via</h2>
           <p className="flex flex-row gap-5 hover:text-blue-400 transition-colors">
             <Image src={phoneLogo} alt="phone logo" />

@@ -6,7 +6,7 @@ export default function MiniNav({
   role: string;
   setRole: Dispatch<SetStateAction<string>>;
 }) {
-  const listStyles = `p-5 hover:cursor-pointer bg-gray-400 border border-gray-400 transition-colors hover:bg-main`;
+  const listStyles = `p-5 hover:cursor-pointer bg-primary dark:bg-secondary border border-primary dark:border-secondary transition-colors hover:bg-main dark:hover:bg-main hover:text-white`;
 
   const handleClick = (value: string) => {
     setRole(value);

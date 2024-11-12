@@ -129,7 +129,7 @@ export default function Page() {
 
   return (
     <main
-      className="bg-white bg-opacity-20 dark:bg-black -z-[2] relative"
+      className="relative bg-white bg-opacity-20 dark:bg-black -z-[2]"
       style={{
         backgroundImage: `url(${CSRLOGO.src})`,
         backgroundSize: "50%",
@@ -137,71 +137,75 @@ export default function Page() {
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute w-full h-full bg-white dark:bg-black opacity-70 -z-[1]"></div>
-      <section className="w-11/12 m-auto lg:mt-28 md:mt-24 xl:mt-30 mt-20 text-center">
-        <p className="font-bold opacity-75 mb-2 text-sm md:mb-6 md:text-base">
+      <div className="absolute inset-0 bg-white dark:bg-black opacity-70 -z-[1]"></div>
+
+      <section className="w-11/12 mx-auto mt-20 lg:mt-28 md:mt-24 xl:mt-30 text-center">
+        <p className="font-semibold opacity-75 mb-4 text-sm md:mb-6 md:text-base">
           {date}
         </p>
-        <h1 className="font-black text-4xl" style={textShadowStyle}>
+        <h1 className="font-black text-4xl lg:text-5xl" style={textShadowStyle}>
           {headerFormat[0]}
           <br />
           {headerFormat[1]}
         </h1>
       </section>
-      <div
-        className="max-w-[600px] h-fit w-11/12 m-auto flex items-center relative group my-10 flex-col"
-        style={{ zIndex: 0 }}
-      >
+
+      <div className="max-w-[600px] w-11/12 mx-auto my-10 flex flex-col items-center relative group">
         <Suspense fallback="Image Loading">
           <Image
-            className="rounded-2xl my-4 shadow-[rgba(50,50,93,0.25)_0px_2px_5px_-1px,rgba(0,0,0,0.3)_0px_1px_3px_-1px]"
+            className="rounded-2xl my-4 shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out"
             src={event.EventPhotoURL}
             alt={event.EventName}
-            priority={false}
             title={event.EventName}
             width={1920}
             height={1080}
           />
         </Suspense>
-        <p className="font-bold text-3xl m-2 md:text-4xl">
+        <p className="font-bold text-3xl md:text-4xl my-4 text-center">
           Donated Amount:{" "}
           {event.DonatedAmount
-            ? numberFormatter(event.DonatedAmount) + " Kyats"
+            ? `${numberFormatter(event.DonatedAmount)} Kyats`
             : ""}
         </p>
       </div>
-      <section className="w-9/12 m-auto">
+
+      <section className="w-9/12 mx-auto text-center my-6">
         <h2
-          className="font-bold text-2xl md:text-3xl my-6 drop-shadow-xl shadow-black"
+          className="font-bold text-2xl md:text-3xl my-6"
           style={textShadowStyle}
         >
           {event.EventName}
         </h2>
-        <p className="text-lg ">{event.EventDescription}</p>
+        <p className="text-lg leading-relaxed text-gray-800 dark:text-gray-300">
+          {event.EventDescription}
+        </p>
       </section>
-      <section className="w-9/12 m-auto">
+
+      <section className="w-9/12 mx-auto text-center my-6">
         <h2 className="font-bold text-2xl md:text-3xl my-4">More Photos</h2>
-        <div className="">
-          <Suspense fallback="Images are Loading. Please Wait">
+        <div>
+          <Suspense fallback="Loading images...">
             {event.EventPhotoList && event.EventPhotoList.length > 0 ? (
               <Lightbox
                 slides={photos}
                 inline={inline}
                 plugins={[Inline, Fullscreen, Slideshow, Zoom]}
-                className="h-[20vh]"
               />
             ) : (
-              <p>No photos at current</p>
+              <p>No photos available</p>
             )}
           </Suspense>
         </div>
       </section>
-      <section className="flex items-center justify-center w-9/12 m-auto my-8 gap-10">
+
+      <section className="flex items-center justify-center w-9/12 mx-auto my-8 gap-5">
         <button
           onClick={handlePrevious}
           disabled={currentIndex <= 1}
-          className={`px-4 py-2 rounded bg-blue-500 text-white ${
-            currentIndex <= 1 ? "opacity-50 cursor-not-allowed" : ""
+          className={`px-6 py-3 rounded-lg bg-blue-500 text-white transition-opacity duration-300 ${
+            currentIndex <= 1
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-blue-600"
           }`}
         >
           Previous
@@ -209,13 +213,16 @@ export default function Page() {
         <button
           onClick={handleNext}
           disabled={currentIndex >= totalEvents}
-          className={`px-4 py-2 rounded bg-blue-500 text-white ${
-            currentIndex >= totalEvents ? "opacity-50 cursor-not-allowed" : ""
+          className={`px-6 py-3 rounded-lg bg-blue-500 text-white transition-opacity duration-300 ${
+            currentIndex >= totalEvents
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-blue-600"
           }`}
         >
           Next
         </button>
       </section>
+
       <Toaster />
     </main>
   );
