@@ -1,14 +1,26 @@
 "use server";
 import connectMongo from "@/app/db/mongoConnect";
 import { MemberSelectProps } from "@/components/admin/events/utils/MemberSelect";
-import MemberModel from "@/Schemas/MemberSchema";
+import MemberModel, { IMember } from "@/Schemas/MemberSchema";
+
+async function fetchMembers(): Promise<string | null> {
+  await connectMongo();
+  try {
+    const members: IMember[] = await MemberModel.find().sort({ Name: 1 });
+
+    return JSON.stringify(members);
+  } catch (error) {
+    console.error("Failed to fetch members:", error);
+    return null;
+  }
+}
 
 /**
  * Fetches members by their IDs and returns them as a JSON string.
  * @param {number[]} memberIds IDs of the members to fetch
  * @returns {Promise<String | null>} The members as a JSON string, or null if there was an error.
  */
-async function fetchMemberDetails(memberIds: number[]): Promise<String | null> {
+async function fetchMemberDetails(memberIds: number[]): Promise<string | null> {
   await connectMongo();
   try {
     const members: MemberSelectProps[] = await MemberModel.find(
@@ -23,7 +35,7 @@ async function fetchMemberDetails(memberIds: number[]): Promise<String | null> {
   }
 }
 
-async function searchMember(name: string): Promise<String | null> {
+async function searchMember(name: string): Promise<string | null> {
   await connectMongo();
   try {
     const members = await MemberModel.find(
@@ -41,4 +53,4 @@ async function searchMember(name: string): Promise<String | null> {
   }
 }
 
-export { fetchMemberDetails, searchMember };
+export { fetchMemberDetails, searchMember, fetchMembers };

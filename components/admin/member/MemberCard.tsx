@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 interface MemberCardProps {
   photo: string;
@@ -6,11 +6,15 @@ interface MemberCardProps {
   dateRange: string;
 }
 
-export default function MemberCard({ photo, name, dateRange }: MemberCardProps) {
+export default function MemberCard({
+  photo,
+  name,
+  dateRange,
+}: MemberCardProps) {
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       <Image
-        src={photo}
+        src={`data:image/png;base64,${convertObjectToBase64(photo)}`}
         alt={`Photo of ${name}`}
         width={300}
         height={300}
@@ -22,4 +26,8 @@ export default function MemberCard({ photo, name, dateRange }: MemberCardProps) 
       </div>
     </div>
   );
+}
+
+function convertObjectToBase64(data: any): Buffer {
+  return Buffer.from(data, "base64");
 }
