@@ -22,13 +22,13 @@ export default function MemberCard({
       <Image
         src={`data:image/png;base64,${convertObjectToBase64(photo)}`}
         alt={`Photo of ${name}`}
-        width={300}
-        height={300}
-        className="w-full h-64 object-cover"
+        width={150}
+        height={150}
+        className="w-full h-fit object-cover"
       />
       <div className="p-4">
-        <h2 className="text-xl font-semibold mb-2">{name}</h2>
-        <p className="text-gray-600">{dateRange}</p>
+        <h2 className="text-base font-semibold mb-2">{name}</h2>
+        <p className="text-gray-600 text-sm">{dateRange}</p>
       </div>
     </div>
   );
