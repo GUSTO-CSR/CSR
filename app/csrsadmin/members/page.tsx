@@ -5,9 +5,14 @@ import { IMember } from "@/Schemas/MemberSchema";
 import { useEffect, useState } from "react";
 import { getAllTMembers } from "@/app/api/v1/members/utils/getAllTMembers";
 import { Button } from "@/components/ui/button";
+import { MemberDialog } from "@/components/admin/member/MemberDialog";
 
 export default function Page() {
   const [members, setMembers] = useState<IMember[] | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<IMember | undefined>(
+    undefined
+  );
   const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
@@ -43,6 +48,37 @@ export default function Page() {
     }
   };
 
+  const handleCardClick = (member: IMember) => {
+    setSelectedMember(member);
+    setIsDialogOpen(true);
+  };
+
+  const handleNewMember = () => {
+    setSelectedMember(undefined);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedMember(undefined);
+  };
+
+  const handleSaveMember = (memberData: Partial<IMember>) => {
+    if (members) {
+      if (selectedMember) {
+        // Update existing member
+        const updatedMember = { ...selectedMember, ...memberData } as IMember;
+        setMembers(
+          members.map((m) => (m._id === selectedMember._id ? updatedMember : m))
+        );
+      } else {
+        // Add new member
+        setMembers((prev) => [...prev!, memberData as IMember]);
+      }
+    }
+    handleCloseDialog();
+  };
+
   return (
     <main className="text-center margin-auto h-screen relative">
       {members != null ? (
@@ -50,6 +86,9 @@ export default function Page() {
           <h1 className="text-2xl font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             Members
           </h1>
+          <Button onClick={handleNewMember} className="mb-4">
+            Add New Member
+          </Button>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {members.map((member) => (
               <MemberCard
@@ -60,6 +99,7 @@ export default function Page() {
                   member.StartDate,
                   member.EndDate
                 )}
+                onClick={() => handleCardClick(member)}
               />
             ))}
           </div>
@@ -76,6 +116,12 @@ export default function Page() {
       ) : (
         <div>Loading...</div>
       )}
+      <MemberDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onSave={handleSaveMember}
+        member={selectedMember}
+      />
     </main>
   );
 }
