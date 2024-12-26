@@ -1,6 +1,5 @@
 "use client";
 import MemberCard from "@/components/admin/member/MemberCard";
-import Logo from "@/public/images/blue_csr_logo.png";
 import { IMember } from "@/Schemas/MemberSchema";
 import { useEffect, useState } from "react";
 import { getAllTMembers } from "@/app/api/v1/members/utils/getAllTMembers";
@@ -16,12 +15,12 @@ export default function Page() {
   const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
-    fetchM();
+    fetchM(page);
   }, []);
 
-  const fetchM = async () => {
+  const fetchM = async (skip: number) => {
     // fetch members from the database
-    const response = await getAllTMembers(page);
+    const response = await getAllTMembers(skip);
     if (response) {
       if (members == null) {
         setMembers(response);
@@ -107,7 +106,7 @@ export default function Page() {
             onClick={() => {
               const p = page + 1;
               setPage(p);
-              fetchM();
+              fetchM(p);
             }}
           >
             Load More

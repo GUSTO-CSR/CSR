@@ -18,6 +18,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { IMember } from "@/Schemas/MemberSchema";
 import Image from "next/image";
 
@@ -27,6 +34,18 @@ interface MemberDialogProps {
   onSave: (member: Partial<IMember>) => void;
   member?: IMember;
 }
+
+const roleOptions = [
+  "Founder",
+  "Finance",
+  "Content Writer",
+  "Digital Graphic",
+  "Volunteer Head",
+  "Facilitator",
+  "Volunteer",
+  "Designer",
+  "Developer",
+];
 
 export function MemberDialog({
   isOpen,
@@ -70,6 +89,10 @@ export function MemberDialog({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRoleChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, Role: value as IMember["Role"] }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -153,13 +176,22 @@ export function MemberDialog({
               <Label htmlFor="role" className="text-right">
                 Role
               </Label>
-              <Input
-                id="role"
+              <Select
                 name="Role"
                 value={formData.Role}
-                onChange={handleChange}
-                className="col-span-3"
-              />
+                onValueChange={handleRoleChange}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roleOptions.map((role) => (
+                    <SelectItem key={role} value={role}>
+                      {role}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">
