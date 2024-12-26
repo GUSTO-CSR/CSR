@@ -9,35 +9,33 @@ export default function EventSwitch({
   previousFunc,
   upcomingFunc,
 }: EventSwitchProps) {
-  const [activeButton, setActiveButton] = useState(true);
+  const [isPreviousActive, setIsPreviousActive] = useState(true);
 
-  const handleButtonClick = (buttonName: boolean) => {
-    setActiveButton(buttonName);
-    // Add logic here to handle switching between Previous and Upcoming events
+  const handleButtonClick = (isPrevious: boolean) => {
+    setIsPreviousActive(isPrevious);
+    isPrevious ? previousFunc() : upcomingFunc();
   };
 
   return (
-    <div className="w-11/12 m-auto flex justify-center lg:mt-32 md:mt-24 xl:mt-30 mt-20">
-      <div className="lg:w-4/12 w-8/12 flex bg-primary dark:bg-secondary text-center rounded-xl font-bold text-xs md:text-sm lg:text-base shadow-[rgba(0,0,0,0.16)_0px_1px_4px]">
+    <div className="w-11/12 m-auto flex justify-center mt-20 lg:mt-28 xl:mt-32">
+      <div className="lg:w-4/12 w-8/12 flex bg-primary dark:bg-secondary text-center rounded-full shadow-md font-semibold text-sm lg:text-base transition-all">
         <button
-          className={`w-1/2 rounded-se-xl rounded-s-xl lg:py-0.5 py-1 text-background bg-${
-            !activeButton ? "blue" : "main"
+          className={`w-1/2 py-2 rounded-l-full transition-all duration-300 ${
+            isPreviousActive
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
           }`}
-          onClick={() => {
-            handleButtonClick(true);
-            previousFunc();
-          }}
+          onClick={() => handleButtonClick(true)}
         >
           Previous
         </button>
         <button
-          className={`w-1/2 rounded-es-xl rounded-e-xl lg:py-0.5 py-1 text-background bg-${
-            activeButton ? "blue" : "main"
+          className={`w-1/2 py-2 rounded-r-full transition-all duration-300 ${
+            !isPreviousActive
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
           }`}
-          onClick={() => {
-            handleButtonClick(false);
-            upcomingFunc();
-          }}
+          onClick={() => handleButtonClick(false)}
         >
           Upcoming
         </button>

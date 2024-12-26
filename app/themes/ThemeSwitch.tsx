@@ -27,10 +27,10 @@ export default function ThemeSwitch() {
 
   if (resolvedTheme === "dark") {
     return (
-      <BiMoon className="w-5 h-5 mx-3" onClick={() => setTheme("light")} />
+      <BiMoon className="w-5 h-5 me-3" onClick={() => setTheme("light")} />
     );
   }
   if (resolvedTheme === "light") {
-    return <BiSun className="w-5 h-5 mx-3" onClick={() => setTheme("dark")} />;
+    return <BiSun className="w-5 h-5 me-3" onClick={() => setTheme("dark")} />;
   }
 }
