@@ -1,6 +1,7 @@
 import { Providers } from "../themes/providers";
 import NavigationBar from "@/components/Nav";
 import Footer from "@/components/Footer";
+import DonateDisplay from "@/components/donatedisplay";
 
 export default function RootLayout({
   children,
@@ -11,6 +12,7 @@ export default function RootLayout({
     <div className="flex flex-col h-screen justify-between">
       <Providers>
         <NavigationBar />
+        <DonateDisplay />
         {children}
         <div className="mb-3">
           <Footer />
