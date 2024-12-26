@@ -14,20 +14,16 @@ export default function Page() {
     undefined
   );
   const [page, setPage] = useState<number>(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchM(page);
   }, []);
 
   const fetchM = async (skip: number) => {
-    // fetch members from the database
     const response = await getAllTMembers(skip);
     if (response) {
-      if (members == null) {
-        setMembers(response);
-      } else {
-        setMembers((prev) => [...prev!, ...response]);
-      }
+      setMembers((prev) => (prev ? [...prev, ...response] : response));
     }
   };
 
@@ -36,16 +32,11 @@ export default function Page() {
     eDate?: Date | null
   ): string => {
     if (!sDate && !eDate) return "No Timeline Data";
-    else if (!sDate && eDate) return "No Start Date";
-    else if (sDate && !eDate) return sDate.getFullYear() + " - Present";
-    else {
-      const startDate = new Date(sDate!);
-      const endDate = new Date(eDate!);
-      const startYear = startDate.getFullYear();
-      const endYear = endDate.getFullYear();
-
-      return startYear + " - " + endYear;
-    }
+    if (!sDate && eDate) return "No Start Date";
+    if (sDate && !eDate) return `${new Date(sDate).getFullYear()} - Present`;
+    return `${new Date(sDate!).getFullYear()} - ${new Date(
+      eDate!
+    ).getFullYear()}`;
   };
 
   const handleCardClick = (member: IMember) => {
@@ -64,49 +55,63 @@ export default function Page() {
   };
 
   const handleSaveMember = async (memberData: Partial<IMember>) => {
-    if (members) {
-      if (selectedMember) {
-        // Update existing member
-        const updatedMember = { ...selectedMember, ...memberData } as IMember;
+    if (!members) return;
 
-        const response = await updateMember(
-          updatedMember.id,
-          updatedMember.Name,
-          updatedMember.Batch,
-          updatedMember.Role,
-          updatedMember.Email,
-          updatedMember.Photo
+    if (selectedMember) {
+      // Update existing member
+      const updatedMember = { ...selectedMember, ...memberData } as IMember;
+      const response = await updateMember(
+        updatedMember.id,
+        updatedMember.Name,
+        updatedMember.Batch,
+        updatedMember.Role,
+        updatedMember.Email,
+        updatedMember.Photo
+      );
+
+      if (response) {
+        setMembers(
+          members.map((m) => (m._id === selectedMember._id ? updatedMember : m))
         );
-
-        if (response) {
-          setMembers(
-            members.map((m) =>
-              m._id === selectedMember._id ? updatedMember : m
-            )
-          );
-        } else {
-          console.error("Failed to update member");
-        }
-      } else {
-        // Add new member
-        setMembers((prev) => [...prev!, memberData as IMember]);
       }
+    } else {
+      // Add new member
+      setMembers((prev) => [...prev!, memberData as IMember]);
     }
+
     handleCloseDialog();
   };
 
+  const filteredMembers = searchQuery.trim()
+    ? members?.filter((member) =>
+        member.Name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : members;
+
   return (
-    <main className="text-center margin-auto h-screen relative">
-      {members != null ? (
+    <main className="text-center margin-auto h-screen relative bg-gray-50">
+      {members ? (
         <>
-          <h1 className="text-2xl font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            Members
-          </h1>
-          <Button onClick={handleNewMember} className="mb-4">
-            Add New Member
-          </Button>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {members.map((member) => (
+          <div className="flex flex-wrap justify-between items-center mb-6 px-6 py-4 bg-white shadow-md rounded-lg">
+            <div></div>
+            <div className="flex items-center">
+              <input
+                type="text"
+                placeholder="Search members..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm w-full max-w-xs focus:ring-2 focus:ring-blue-500"
+              />
+              <Button
+                onClick={handleNewMember}
+                className="ml-4 bg-blue-500 text-white hover:bg-blue-600"
+              >
+                Add New Member
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-6">
+            {filteredMembers?.map((member) => (
               <MemberCard
                 key={member._id}
                 photo={member.Photo}
@@ -119,18 +124,25 @@ export default function Page() {
               />
             ))}
           </div>
-          <Button
-            onClick={() => {
-              const p = page + 1;
-              setPage(p);
-              fetchM(p);
-            }}
-          >
-            Load More
-          </Button>
+          {!searchQuery && (
+            <div className="mt-6">
+              <Button
+                onClick={() => {
+                  const nextPage = page + 1;
+                  setPage(nextPage);
+                  fetchM(nextPage);
+                }}
+                className="bg-gray-700 text-white hover:bg-gray-800"
+              >
+                Load More
+              </Button>
+            </div>
+          )}
         </>
       ) : (
-        <div>Loading...</div>
+        <div className="flex items-center justify-center h-full text-gray-500">
+          Loading...
+        </div>
       )}
       <MemberDialog
         isOpen={isDialogOpen}
