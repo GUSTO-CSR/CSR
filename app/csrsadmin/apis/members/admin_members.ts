@@ -3,6 +3,53 @@ import connectMongo from "@/app/db/mongoConnect";
 import { MemberSelectProps } from "@/components/admin/events/utils/MemberSelect";
 import MemberModel, { IMember } from "@/Schemas/MemberSchema";
 
+async function createMember(
+  name: string,
+  batch: string,
+  role: string,
+  email: string,
+  photo: string
+): Promise<boolean> {
+  await connectMongo();
+  try {
+    const member = new MemberModel({
+      Name: name,
+      Batch: batch,
+      Role: role,
+      Email: email,
+      Photo: photo,
+    });
+
+    await member.save();
+    return true;
+  } catch (error) {
+    console.error("Failed to create member:", error);
+    return false;
+  }
+}
+
+async function updateMember(
+  memberId: number,
+  name: string,
+  batch: string,
+  role: string,
+  email: string,
+  photo: string
+): Promise<boolean> {
+  await connectMongo();
+  try {
+    await MemberModel.updateOne(
+      { _id: memberId },
+      { Name: name, Batch: batch, Role: role, Email: email, Photo: photo }
+    );
+
+    return true;
+  } catch (error) {
+    console.error("Failed to update member:", error);
+    return false;
+  }
+}
+
 async function fetchMembers(): Promise<string | null> {
   await connectMongo();
   try {
@@ -53,4 +100,10 @@ async function searchMember(name: string): Promise<string | null> {
   }
 }
 
-export { fetchMemberDetails, searchMember, fetchMembers };
+export {
+  fetchMemberDetails,
+  searchMember,
+  fetchMembers,
+  createMember,
+  updateMember,
+};
