@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getAllTMembers } from "@/app/api/v1/members/utils/getAllTMembers";
 import { Button } from "@/components/ui/button";
 import { MemberDialog } from "@/components/admin/member/MemberDialog";
+import { updateMember } from "../apis/members/admin_members";
 
 export default function Page() {
   const [members, setMembers] = useState<IMember[] | null>(null);
@@ -62,14 +63,30 @@ export default function Page() {
     setSelectedMember(undefined);
   };
 
-  const handleSaveMember = (memberData: Partial<IMember>) => {
+  const handleSaveMember = async (memberData: Partial<IMember>) => {
     if (members) {
       if (selectedMember) {
         // Update existing member
         const updatedMember = { ...selectedMember, ...memberData } as IMember;
-        setMembers(
-          members.map((m) => (m._id === selectedMember._id ? updatedMember : m))
+
+        const response = await updateMember(
+          updatedMember.id,
+          updatedMember.Name,
+          updatedMember.Batch,
+          updatedMember.Role,
+          updatedMember.Email,
+          updatedMember.Photo
         );
+
+        if (response) {
+          setMembers(
+            members.map((m) =>
+              m._id === selectedMember._id ? updatedMember : m
+            )
+          );
+        } else {
+          console.error("Failed to update member");
+        }
       } else {
         // Add new member
         setMembers((prev) => [...prev!, memberData as IMember]);
