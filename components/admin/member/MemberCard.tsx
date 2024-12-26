@@ -1,16 +1,26 @@
-import Image from 'next/image';
+import { convertObjectToBase64 } from "@/lib/utils";
+import Image from "next/image";
 
 interface MemberCardProps {
   photo: string;
   name: string;
   dateRange: string;
+  onClick: () => void;
 }
 
-export default function MemberCard({ photo, name, dateRange }: MemberCardProps) {
+export default function MemberCard({
+  photo,
+  name,
+  dateRange,
+  onClick,
+}: MemberCardProps) {
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div
+      className="bg-white shadow-md rounded-lg overflow-hidden cursor-pointer"
+      onClick={onClick}
+    >
       <Image
-        src={photo}
+        src={`data:image/png;base64,${convertObjectToBase64(photo)}`}
         alt={`Photo of ${name}`}
         width={300}
         height={300}

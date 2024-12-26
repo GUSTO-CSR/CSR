@@ -17,6 +17,8 @@ export interface IMember extends Document {
     | "Developer";
   Email: string;
   Photo: string;
+  StartDate?: Date;
+  EndDate?: Date;
 }
 
 // Define the schema
@@ -41,6 +43,8 @@ const MemberSchema: Schema = new Schema({
   },
   Email: { type: String, required: true },
   Photo: { type: Buffer, required: true },
+  StartDate: { type: Date },
+  EndDate: { type: Date },
 });
 
 // Compile the model
