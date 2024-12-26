@@ -6,6 +6,7 @@ import { getAllTMembers } from "@/app/api/v1/members/utils/getAllTMembers";
 import { Button } from "@/components/ui/button";
 import { MemberDialog } from "@/components/admin/member/MemberDialog";
 import { updateMember } from "../apis/members/admin_members";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Page() {
   const [members, setMembers] = useState<IMember[] | null>(null);
@@ -62,18 +63,20 @@ export default function Page() {
       // Update existing member
       const updatedMember = { ...selectedMember, ...memberData } as IMember;
       const response = await updateMember(
-        updatedMember.id,
+        updatedMember._id,
         updatedMember.Name,
         updatedMember.Batch,
         updatedMember.Role,
         updatedMember.Email,
         updatedMember.Photo
       );
-
       if (response) {
+        toast.success("Member updated successfully");
         setMembers(
           members.map((m) => (m._id === selectedMember._id ? updatedMember : m))
         );
+      } else {
+        toast.error("Failed to update member");
       }
     } else {
       // Add new member
@@ -91,6 +94,7 @@ export default function Page() {
 
   return (
     <main className="text-center margin-auto h-screen relative bg-gray-50">
+      <Toaster />
       {members ? (
         <>
           <div className="flex flex-wrap justify-between items-center mb-6 px-6 py-4 bg-white shadow-md rounded-lg">

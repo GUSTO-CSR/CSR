@@ -38,12 +38,14 @@ async function updateMember(
 ): Promise<boolean> {
   await connectMongo();
   try {
-    await MemberModel.updateOne(
+    const response = await MemberModel.updateOne(
       { _id: memberId },
       { Name: name, Batch: batch, Role: role, Email: email, Photo: photo }
     );
-
-    return true;
+    if (response.modifiedCount === 1) {
+      return true;
+    }
+    return false;
   } catch (error) {
     console.error("Failed to update member:", error);
     return false;
