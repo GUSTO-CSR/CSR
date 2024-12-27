@@ -105,12 +105,11 @@ async function fetchMemberDetails(memberIds: number[]): Promise<string | null> {
   }
 }
 
-async function searchMember(name: string): Promise<string | null> {
+async function searchMemberByName(name: string): Promise<string | null> {
   await connectMongo();
   try {
     const members = await MemberModel.find(
-      { Name: { $regex: name, $options: "i" } }, // Case-insensitive search
-      { _id: 1, Name: 1, Batch: 1 } // Select only _id, Name, and Batch
+      { Name: { $regex: name, $options: "i" } } // Case-insensitive search
     )
       .sort({ Name: 1 }) // Sort by Name in ascending order
       .limit(7) // Limit the results to 7 members
@@ -125,7 +124,7 @@ async function searchMember(name: string): Promise<string | null> {
 
 export {
   fetchMemberDetails,
-  searchMember,
+  searchMemberByName,
   fetchMembers,
   createMember,
   updateMember,

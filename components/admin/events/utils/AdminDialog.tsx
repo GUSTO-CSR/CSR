@@ -21,11 +21,8 @@ import React, { useEffect, useRef, useState } from "react";
 import ImagePick from "./ImagePick";
 import MemberSelect, { MemberSelectProps } from "./MemberSelect";
 import { Calendar } from "@/components/ui/calendar";
-import { useForm } from "react-hook-form";
-import CancelButton from "./CancelButton";
 import { IEvent, IEventData } from "@/Schemas/EventSchema";
 import { fetchMemberDetails } from "@/app/csrsadmin/apis/members/admin_members";
-import MemberList from "@/app/(overview)/about/page";
 import {
   updateEvent,
   uploadPhotoToBlob,
