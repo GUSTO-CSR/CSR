@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { getAllTMembers } from "@/app/api/v1/members/utils/getAllTMembers";
 import { Button } from "@/components/ui/button";
 import { MemberDialog } from "@/components/admin/member/MemberDialog";
-import { updateMember } from "../apis/members/admin_members";
+import {
+  createMember,
+  deleteMember,
+  updateMember,
+} from "../apis/members/admin_members";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function Page() {
@@ -80,10 +84,45 @@ export default function Page() {
       }
     } else {
       // Add new member
-      setMembers((prev) => [...prev!, memberData as IMember]);
+      const newMember = memberData as IMember;
+      if (
+        memberData.Name &&
+        memberData.Batch &&
+        memberData.Role &&
+        memberData.Email &&
+        memberData.Photo
+      ) {
+        const response = await createMember(
+          memberData.Name,
+          memberData.Batch,
+          memberData.Role,
+          memberData.Email,
+          memberData.Photo
+        );
+        if (response) {
+          toast.success("Member added successfully");
+          setMembers([...members, newMember]);
+        } else {
+          toast.error("Failed to add member");
+        }
+      } else {
+        toast.error("Please fill all the fields");
+      }
     }
 
     handleCloseDialog();
+  };
+
+  const handleDelete = async (memberId: number) => {
+    const response = await deleteMember(memberId);
+    if (response) {
+      toast.success("Member deleted successfully");
+      if (members) {
+        setMembers(members?.filter((m) => m._id !== memberId));
+      }
+    } else {
+      toast.error("Failed to delete member");
+    }
   };
 
   const filteredMembers = searchQuery.trim()
@@ -168,6 +207,7 @@ export default function Page() {
         </div>
       )}
       <MemberDialog
+        handleDelete={handleDelete}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
         onSave={handleSaveMember}

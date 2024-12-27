@@ -3,6 +3,11 @@ import connectMongo from "@/app/db/mongoConnect";
 import { MemberSelectProps } from "@/components/admin/events/utils/MemberSelect";
 import MemberModel, { IMember } from "@/Schemas/MemberSchema";
 
+async function generateUniqueId(): Promise<number> {
+  const lastMember = await MemberModel.findOne().sort({ _id: -1 }).exec();
+  return lastMember ? lastMember._id + 1 : 1;
+}
+
 async function createMember(
   name: string,
   batch: string,
@@ -12,7 +17,9 @@ async function createMember(
 ): Promise<boolean> {
   await connectMongo();
   try {
+    const newId = await generateUniqueId();
     const member = new MemberModel({
+      _id: newId,
       Name: name,
       Batch: batch,
       Role: role,
@@ -48,6 +55,20 @@ async function updateMember(
     return false;
   } catch (error) {
     console.error("Failed to update member:", error);
+    return false;
+  }
+}
+
+async function deleteMember(memberId: number): Promise<boolean> {
+  await connectMongo();
+  try {
+    const response = await MemberModel.deleteOne({ _id: memberId });
+    if (response.deletedCount === 1) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Failed to delete member:", error);
     return false;
   }
 }
@@ -108,4 +129,5 @@ export {
   fetchMembers,
   createMember,
   updateMember,
+  deleteMember,
 };

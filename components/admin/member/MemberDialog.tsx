@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn, convertObjectToBase64 } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -32,6 +32,7 @@ interface MemberDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (member: Partial<IMember>) => void;
+  handleDelete: (memberId: number) => void;
   member?: IMember;
 }
 
@@ -51,6 +52,7 @@ export function MemberDialog({
   isOpen,
   onClose,
   onSave,
+  handleDelete,
   member,
 }: MemberDialogProps) {
   const [formData, setFormData] = useState<Partial<IMember>>({
@@ -274,7 +276,17 @@ export function MemberDialog({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save changes</Button>
+            <div className="flex flex-row gap-3 items-center">
+              {member && (
+                <Trash2
+                  className="text-red-500 cursor-pointer"
+                  onClick={() => {
+                    handleDelete(member._id);
+                  }}
+                />
+              )}
+              <Button type="submit">Save changes</Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>
