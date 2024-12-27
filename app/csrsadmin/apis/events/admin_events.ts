@@ -54,4 +54,22 @@ async function deleteEvent(eventId: number): Promise<boolean> {
   }
 }
 
-export { updateEvent, deletePhoto, uploadPhotoToBlob, deleteEvent };
+async function createEvent(event: IEventData): Promise<string | null> {
+  await connectMongo();
+  try {
+    const newEvent = new EventModel(event);
+    await newEvent.save();
+    return JSON.stringify(newEvent);
+  } catch (error) {
+    console.error("Failed to create event: ", error);
+    return null;
+  }
+}
+
+export {
+  updateEvent,
+  deletePhoto,
+  uploadPhotoToBlob,
+  deleteEvent,
+  createEvent,
+};

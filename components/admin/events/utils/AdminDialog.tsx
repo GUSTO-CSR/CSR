@@ -24,6 +24,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { IEvent, IEventData } from "@/Schemas/EventSchema";
 import { fetchMemberDetails } from "@/app/csrsadmin/apis/members/admin_members";
 import {
+  createEvent,
   deleteEvent,
   updateEvent,
   uploadPhotoToBlob,
@@ -136,21 +137,39 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
     setEventPhotos(uploadedPhotos as (string | undefined)[]); // Update the state with the uploaded URLs
 
     // Continue with form submission logic here (e.g., updating the event)
-    const updateEventData: IEventData = {
-      _id: event!._id,
-      EventName: title,
-      EventDescription: description,
-      EventPhotoURL: mainPhoto as string,
-      EventPhotoList: uploadedPhotos as string[],
-      DonatedAmount: donatedAmount,
-      EventDate: date,
-      Completed: eventTime ?? false,
-      MemberLists: memberIdList,
-    };
+    try {
+      const updateEventData: IEventData = {
+        _id: event!._id,
+        EventName: title,
+        EventDescription: description,
+        EventPhotoURL: mainPhoto as string,
+        EventPhotoList: uploadedPhotos as string[],
+        DonatedAmount: donatedAmount,
+        EventDate: date,
+        Completed: eventTime ?? false,
+        MemberLists: memberIdList,
+      };
 
-    const updatedEvent = await updateEvent(updateEventData);
-    if (!updatedEvent) {
-      alert("Sorry, something went wrong!");
+      const updatedEvent = await updateEvent(updateEventData);
+      if (!updatedEvent) {
+        toast.error("Sorry, something went wrong!");
+      }
+    } catch (error) {
+      const newEvent: Omit<IEventData, "_id"> = {
+        EventName: title,
+        EventDescription: description,
+        EventPhotoURL: mainPhoto as string,
+        EventPhotoList: uploadedPhotos as string[],
+        DonatedAmount: donatedAmount,
+        EventDate: date,
+        Completed: eventTime ?? false,
+        MemberLists: memberIdList,
+      };
+
+      const createdEvent = await createEvent(newEvent as IEventData);
+      if (!createdEvent) {
+        toast.error("Sorry, something went wrong!");
+      }
     }
   };
 
