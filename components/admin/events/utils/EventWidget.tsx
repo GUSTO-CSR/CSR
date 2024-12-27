@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "next/legacy/image";
 import React from "react";
 import { IEvent } from "@/Schemas/EventSchema";
 import { DateRange } from "react-day-picker";

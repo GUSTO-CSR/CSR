@@ -1,5 +1,5 @@
 import { convertObjectToBase64 } from "@/lib/utils";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 interface MemberCardProps {
   photo: string;

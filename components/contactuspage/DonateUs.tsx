@@ -1,6 +1,6 @@
 import QR from "@/public/images/csr-qr.png";
 import kpayLogo from "@/public/svg/kpay_logo.svg";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import phoneLogo from "@/public/svg/phone_icon.svg";
 import emailLogo from "@/public/svg/email_icon.svg";
 export default function DonateUs() {

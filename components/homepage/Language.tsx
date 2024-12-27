@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import EN from "@/public/images/en.png";
 import MM from "@/public/images/mm.png";
 

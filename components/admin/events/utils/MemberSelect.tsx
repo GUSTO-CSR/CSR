@@ -1,4 +1,4 @@
-import { searchMember } from "@/app/csrsadmin/apis/members/admin_members";
+import { searchMemberByName } from "@/app/csrsadmin/apis/members/admin_members";
 import { Switch } from "@/components/ui/switch";
 import { IMember } from "@/Schemas/MemberSchema";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -31,7 +31,7 @@ export default function MemberSelect({
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
       if (searchTerm) {
-        const searchResult = await searchMember(searchTerm);
+        const searchResult = await searchMemberByName(searchTerm);
         if (typeof searchResult == "string") {
           setFilteredMembers(JSON.parse(searchResult) as MemberSelectProps[]);
         } else {

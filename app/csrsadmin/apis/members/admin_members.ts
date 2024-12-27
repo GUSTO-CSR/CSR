@@ -3,6 +3,11 @@ import connectMongo from "@/app/db/mongoConnect";
 import { MemberSelectProps } from "@/components/admin/events/utils/MemberSelect";
 import MemberModel, { IMember } from "@/Schemas/MemberSchema";
 
+async function generateUniqueId(): Promise<number> {
+  const lastMember = await MemberModel.findOne().sort({ _id: -1 }).exec();
+  return lastMember ? lastMember._id + 1 : 1;
+}
+
 async function createMember(
   name: string,
   batch: string,
@@ -12,7 +17,9 @@ async function createMember(
 ): Promise<boolean> {
   await connectMongo();
   try {
+    const newId = await generateUniqueId();
     const member = new MemberModel({
+      _id: newId,
       Name: name,
       Batch: batch,
       Role: role,
@@ -52,6 +59,20 @@ async function updateMember(
   }
 }
 
+async function deleteMember(memberId: number): Promise<boolean> {
+  await connectMongo();
+  try {
+    const response = await MemberModel.deleteOne({ _id: memberId });
+    if (response.deletedCount === 1) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Failed to delete member:", error);
+    return false;
+  }
+}
+
 async function fetchMembers(): Promise<string | null> {
   await connectMongo();
   try {
@@ -84,12 +105,11 @@ async function fetchMemberDetails(memberIds: number[]): Promise<string | null> {
   }
 }
 
-async function searchMember(name: string): Promise<string | null> {
+async function searchMemberByName(name: string): Promise<string | null> {
   await connectMongo();
   try {
     const members = await MemberModel.find(
-      { Name: { $regex: name, $options: "i" } }, // Case-insensitive search
-      { _id: 1, Name: 1, Batch: 1 } // Select only _id, Name, and Batch
+      { Name: { $regex: name, $options: "i" } } // Case-insensitive search
     )
       .sort({ Name: 1 }) // Sort by Name in ascending order
       .limit(7) // Limit the results to 7 members
@@ -104,8 +124,9 @@ async function searchMember(name: string): Promise<string | null> {
 
 export {
   fetchMemberDetails,
-  searchMember,
+  searchMemberByName,
   fetchMembers,
   createMember,
   updateMember,
+  deleteMember,
 };

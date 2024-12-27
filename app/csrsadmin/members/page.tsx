@@ -5,27 +5,74 @@ import { useEffect, useState } from "react";
 import { getAllTMembers } from "@/app/api/v1/members/utils/getAllTMembers";
 import { Button } from "@/components/ui/button";
 import { MemberDialog } from "@/components/admin/member/MemberDialog";
-import { updateMember } from "../apis/members/admin_members";
+import {
+  createMember,
+  deleteMember,
+  searchMemberByName,
+  updateMember,
+} from "../apis/members/admin_members";
 import toast, { Toaster } from "react-hot-toast";
+import { debounce } from "lodash";
 
 export default function Page() {
-  const [members, setMembers] = useState<IMember[] | null>(null);
+  const [members, setMembers] = useState<Map<number, IMember>>(new Map());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<IMember | undefined>(
     undefined
   );
   const [page, setPage] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [filteredMember, setFilteredMember] = useState<IMember[] | null>(null);
 
   useEffect(() => {
     console.log("Fetching members");
     fetchM(page);
   }, [page]);
 
-  const fetchM = async (skip: number) => {
-    const response = await getAllTMembers(skip);
+  useEffect(() => {
+    const handler = debounce(() => {
+      setDebouncedQuery(searchQuery); // Update debounced query after delay
+    }, 500); // Adjust debounce delay as needed (500ms recommended)
+
+    handler();
+    return () => handler.cancel();
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (debouncedQuery) {
+      searchMember(debouncedQuery);
+    } else {
+      setFilteredMember(null);
+    }
+  }, [debouncedQuery]);
+
+  const fetchM = async (page: number) => {
+    const response = await getAllTMembers(page);
     if (response) {
-      setMembers((prev) => (prev ? [...prev, ...response] : response));
+      setMembers((prev) => {
+        const updatedMembers = new Map(prev);
+        response.forEach((member: IMember) => {
+          updatedMembers.set(member._id, member);
+        });
+        return updatedMembers;
+      });
+    }
+  };
+
+  const searchMember = async (name: string) => {
+    try {
+      const response = await searchMemberByName(name);
+      if (response) {
+        const filteredMembers = JSON.parse(response);
+        setFilteredMember(filteredMembers);
+      } else {
+        setFilteredMember([]);
+      }
+    } catch (error) {
+      console.error("Error searching members:", error);
+      setFilteredMember([]);
+      toast.error("Failed to search members");
     }
   };
 
@@ -72,25 +119,62 @@ export default function Page() {
       );
       if (response) {
         toast.success("Member updated successfully");
-        setMembers(
-          members.map((m) => (m._id === selectedMember._id ? updatedMember : m))
-        );
+        setMembers((prev) => {
+          const updatedMembers = new Map(prev);
+          updatedMembers.set(updatedMember._id, updatedMember);
+          return updatedMembers;
+        });
       } else {
         toast.error("Failed to update member");
       }
     } else {
       // Add new member
-      setMembers((prev) => [...prev!, memberData as IMember]);
+      const newMember = memberData as IMember;
+      if (
+        memberData.Name &&
+        memberData.Batch &&
+        memberData.Role &&
+        memberData.Email &&
+        memberData.Photo
+      ) {
+        const response = await createMember(
+          memberData.Name,
+          memberData.Batch,
+          memberData.Role,
+          memberData.Email,
+          memberData.Photo
+        );
+        if (response) {
+          toast.success("Member added successfully");
+          setMembers((prev) => {
+            const updatedMembers = new Map(prev);
+            updatedMembers.set(newMember._id, newMember);
+            return updatedMembers;
+          });
+        } else {
+          toast.error("Failed to add member");
+        }
+      } else {
+        toast.error("Please fill all the fields");
+      }
     }
 
     handleCloseDialog();
   };
 
-  const filteredMembers = searchQuery.trim()
-    ? members?.filter((member) =>
-        member.Name?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : members;
+  const handleDelete = async (memberId: number) => {
+    const response = await deleteMember(memberId);
+    if (response) {
+      toast.success("Member deleted successfully");
+      setMembers((prev) => {
+        const updatedMembers = new Map(prev);
+        updatedMembers.delete(memberId);
+        return updatedMembers;
+      });
+    } else {
+      toast.error("Failed to delete member");
+    }
+  };
 
   return (
     <main className="text-center margin-auto h-screen relative bg-gray-50">
@@ -116,9 +200,9 @@ export default function Page() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-6">
-            {searchQuery.length != 0 ? (
+            {!filteredMember ? (
               <>
-                {members.map((member) => (
+                {[...members.values()].map((member) => (
                   <MemberCard
                     key={member._id}
                     photo={member.Photo}
@@ -133,7 +217,7 @@ export default function Page() {
               </>
             ) : (
               <>
-                {filteredMembers?.map((member) => (
+                {filteredMember?.map((member) => (
                   <MemberCard
                     key={member._id}
                     photo={member.Photo}
@@ -151,10 +235,7 @@ export default function Page() {
           {!searchQuery && (
             <div className="mt-6">
               <Button
-                onClick={() => {
-                  const nextPage = page + 1;
-                  setPage(nextPage);
-                }}
+                onClick={() => setPage(page + 1)}
                 className="bg-gray-700 text-white hover:bg-gray-800"
               >
                 Load More
@@ -168,6 +249,7 @@ export default function Page() {
         </div>
       )}
       <MemberDialog
+        handleDelete={handleDelete}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
         onSave={handleSaveMember}

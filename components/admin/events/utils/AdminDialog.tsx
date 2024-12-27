@@ -21,15 +21,16 @@ import React, { useEffect, useRef, useState } from "react";
 import ImagePick from "./ImagePick";
 import MemberSelect, { MemberSelectProps } from "./MemberSelect";
 import { Calendar } from "@/components/ui/calendar";
-import { useForm } from "react-hook-form";
-import CancelButton from "./CancelButton";
 import { IEvent, IEventData } from "@/Schemas/EventSchema";
 import { fetchMemberDetails } from "@/app/csrsadmin/apis/members/admin_members";
-import MemberList from "@/app/(overview)/about/page";
 import {
+  createEvent,
+  deleteEvent,
   updateEvent,
   uploadPhotoToBlob,
 } from "@/app/csrsadmin/apis/events/admin_events";
+import toast from "react-hot-toast";
+import { Trash2 } from "lucide-react";
 
 interface AdminDialogProps {
   event?: IEvent;
@@ -136,21 +137,39 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
     setEventPhotos(uploadedPhotos as (string | undefined)[]); // Update the state with the uploaded URLs
 
     // Continue with form submission logic here (e.g., updating the event)
-    const updateEventData: IEventData = {
-      _id: event!._id,
-      EventName: title,
-      EventDescription: description,
-      EventPhotoURL: mainPhoto as string,
-      EventPhotoList: uploadedPhotos as string[],
-      DonatedAmount: donatedAmount,
-      EventDate: date,
-      Completed: eventTime ?? false,
-      MemberLists: memberIdList,
-    };
+    try {
+      const updateEventData: IEventData = {
+        _id: event!._id,
+        EventName: title,
+        EventDescription: description,
+        EventPhotoURL: mainPhoto as string,
+        EventPhotoList: uploadedPhotos as string[],
+        DonatedAmount: donatedAmount,
+        EventDate: date,
+        Completed: eventTime ?? false,
+        MemberLists: memberIdList,
+      };
 
-    const updatedEvent = await updateEvent(updateEventData);
-    if (!updatedEvent) {
-      alert("Sorry, something went wrong!");
+      const updatedEvent = await updateEvent(updateEventData);
+      if (!updatedEvent) {
+        toast.error("Sorry, something went wrong!");
+      }
+    } catch (error) {
+      const newEvent: Omit<IEventData, "_id"> = {
+        EventName: title,
+        EventDescription: description,
+        EventPhotoURL: mainPhoto as string,
+        EventPhotoList: uploadedPhotos as string[],
+        DonatedAmount: donatedAmount,
+        EventDate: date,
+        Completed: eventTime ?? false,
+        MemberLists: memberIdList,
+      };
+
+      const createdEvent = await createEvent(newEvent as IEventData);
+      if (!createdEvent) {
+        toast.error("Sorry, something went wrong!");
+      }
     }
   };
 
@@ -167,6 +186,15 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
       return null;
     }
   }
+
+  const handleDelete = async (id: number) => {
+    const response = await deleteEvent(id);
+    if (response) {
+      toast.success("Event Deleted Successfully");
+    } else {
+      toast.error("Failed to delete event");
+    }
+  };
 
   return (
     <Dialog>
@@ -320,26 +348,36 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
 
         {/* Navigation Buttons */}
         <DialogFooter className="mt-auto">
-          {currentStep > 1 && (
-            <Button className="bg-slate-500" onClick={previousStep}>
-              Previous
-            </Button>
-          )}
-          {currentStep < 3 && <Button onClick={nextStep}>Next</Button>}
-          {currentStep === 3 && (
-            // <CancelButton func={}>
-            //   <Button type="submit" className="bg-green-500">
-            //     Done
-            //   </Button>
-            // </CancelButton>
-            <Button
-              type="submit"
-              className="bg-green-500"
-              onClick={handleFormSubmit}
-            >
-              Done
-            </Button>
-          )}
+          <div className="">
+            {event && (
+              <Trash2
+                className="cursor-pointer text-red-400"
+                onClick={() => {
+                  handleDelete(event._id);
+                }}
+              />
+            )}
+            {currentStep > 1 && (
+              <Button className="bg-slate-500" onClick={previousStep}>
+                Previous
+              </Button>
+            )}
+            {currentStep < 3 && <Button onClick={nextStep}>Next</Button>}
+            {currentStep === 3 && (
+              // <CancelButton func={}>
+              //   <Button type="submit" className="bg-green-500">
+              //     Done
+              //   </Button>
+              // </CancelButton>
+              <Button
+                type="submit"
+                className="bg-green-500"
+                onClick={handleFormSubmit}
+              >
+                Done
+              </Button>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
