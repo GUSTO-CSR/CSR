@@ -6,6 +6,7 @@ import { getAllTMembers } from "@/app/api/v1/members/utils/getAllTMembers";
 import { Button } from "@/components/ui/button";
 import { MemberDialog } from "@/components/admin/member/MemberDialog";
 import { updateMember } from "../apis/members/admin_members";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Page() {
   const [members, setMembers] = useState<IMember[] | null>(null);
@@ -17,8 +18,9 @@ export default function Page() {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
+    console.log("Fetching members");
     fetchM(page);
-  }, []);
+  }, [page]);
 
   const fetchM = async (skip: number) => {
     const response = await getAllTMembers(skip);
@@ -61,18 +63,20 @@ export default function Page() {
       // Update existing member
       const updatedMember = { ...selectedMember, ...memberData } as IMember;
       const response = await updateMember(
-        updatedMember.id,
+        updatedMember._id,
         updatedMember.Name,
         updatedMember.Batch,
         updatedMember.Role,
         updatedMember.Email,
         updatedMember.Photo
       );
-
       if (response) {
+        toast.success("Member updated successfully");
         setMembers(
           members.map((m) => (m._id === selectedMember._id ? updatedMember : m))
         );
+      } else {
+        toast.error("Failed to update member");
       }
     } else {
       // Add new member
@@ -90,6 +94,7 @@ export default function Page() {
 
   return (
     <main className="text-center margin-auto h-screen relative bg-gray-50">
+      <Toaster />
       {members ? (
         <>
           <div className="flex flex-wrap justify-between items-center mb-6 px-6 py-4 bg-white shadow-md rounded-lg">
@@ -111,18 +116,37 @@ export default function Page() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-6">
-            {filteredMembers?.map((member) => (
-              <MemberCard
-                key={member._id}
-                photo={member.Photo}
-                name={member.Name}
-                dateRange={convertDatetoString(
-                  member.StartDate,
-                  member.EndDate
-                )}
-                onClick={() => handleCardClick(member)}
-              />
-            ))}
+            {searchQuery.length != 0 ? (
+              <>
+                {members.map((member) => (
+                  <MemberCard
+                    key={member._id}
+                    photo={member.Photo}
+                    name={member.Name}
+                    dateRange={convertDatetoString(
+                      member.StartDate,
+                      member.EndDate
+                    )}
+                    onClick={() => handleCardClick(member)}
+                  />
+                ))}
+              </>
+            ) : (
+              <>
+                {filteredMembers?.map((member) => (
+                  <MemberCard
+                    key={member._id}
+                    photo={member.Photo}
+                    name={member.Name}
+                    dateRange={convertDatetoString(
+                      member.StartDate,
+                      member.EndDate
+                    )}
+                    onClick={() => handleCardClick(member)}
+                  />
+                ))}
+              </>
+            )}
           </div>
           {!searchQuery && (
             <div className="mt-6">
@@ -130,7 +154,6 @@ export default function Page() {
                 onClick={() => {
                   const nextPage = page + 1;
                   setPage(nextPage);
-                  fetchM(nextPage);
                 }}
                 className="bg-gray-700 text-white hover:bg-gray-800"
               >
