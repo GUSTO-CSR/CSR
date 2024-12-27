@@ -1,7 +1,7 @@
 import { FaFacebookF } from "react-icons/fa6";
 export default function Founded() {
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mx-16 mt-10">
+    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:mx-16 md:mx-10 mx-5 mt-10">
       <div className="h-56 bg-primary dark:bg-secondary rounded-2xl px-5 flex items-center justify-center shadow-lg transition-transform transform hover:scale-105">
         <article className="text-wrap ">
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-main text-white">

@@ -1,6 +1,6 @@
 "use client";
 import ThemeSwitch from "../app/themes/ThemeSwitch"; // Adjust the path based on your project structure
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { FaFacebookF } from "react-icons/fa6";
 import { FiArrowUpRight } from "react-icons/fi";
 
