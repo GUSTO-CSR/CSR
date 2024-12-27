@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { notFound, useParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { IEvent } from "@/Schemas/EventSchema";

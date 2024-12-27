@@ -24,9 +24,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { IEvent, IEventData } from "@/Schemas/EventSchema";
 import { fetchMemberDetails } from "@/app/csrsadmin/apis/members/admin_members";
 import {
+  deleteEvent,
   updateEvent,
   uploadPhotoToBlob,
 } from "@/app/csrsadmin/apis/events/admin_events";
+import toast from "react-hot-toast";
+import { Trash2 } from "lucide-react";
 
 interface AdminDialogProps {
   event?: IEvent;
@@ -164,6 +167,15 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
       return null;
     }
   }
+
+  const handleDelete = async (id: number) => {
+    const response = await deleteEvent(id);
+    if (response) {
+      toast.success("Event Deleted Successfully");
+    } else {
+      toast.error("Failed to delete event");
+    }
+  };
 
   return (
     <Dialog>
@@ -317,26 +329,36 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
 
         {/* Navigation Buttons */}
         <DialogFooter className="mt-auto">
-          {currentStep > 1 && (
-            <Button className="bg-slate-500" onClick={previousStep}>
-              Previous
-            </Button>
-          )}
-          {currentStep < 3 && <Button onClick={nextStep}>Next</Button>}
-          {currentStep === 3 && (
-            // <CancelButton func={}>
-            //   <Button type="submit" className="bg-green-500">
-            //     Done
-            //   </Button>
-            // </CancelButton>
-            <Button
-              type="submit"
-              className="bg-green-500"
-              onClick={handleFormSubmit}
-            >
-              Done
-            </Button>
-          )}
+          <div className="">
+            {event && (
+              <Trash2
+                className="cursor-pointer text-red-400"
+                onClick={() => {
+                  handleDelete(event._id);
+                }}
+              />
+            )}
+            {currentStep > 1 && (
+              <Button className="bg-slate-500" onClick={previousStep}>
+                Previous
+              </Button>
+            )}
+            {currentStep < 3 && <Button onClick={nextStep}>Next</Button>}
+            {currentStep === 3 && (
+              // <CancelButton func={}>
+              //   <Button type="submit" className="bg-green-500">
+              //     Done
+              //   </Button>
+              // </CancelButton>
+              <Button
+                type="submit"
+                className="bg-green-500"
+                onClick={handleFormSubmit}
+              >
+                Done
+              </Button>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

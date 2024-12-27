@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes";
 import { BiSun, BiMoon } from "react-icons/bi";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { resolve } from "path";
 
 export default function ThemeSwitch() {

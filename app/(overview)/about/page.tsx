@@ -1,7 +1,7 @@
 "use client";
 import MiniNav from "@/components/aboutpage/MiniNav";
 import { IMember } from "@/Schemas/MemberSchema";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { Suspense, useEffect, useState } from "react";
 import { getFounder } from "@/app/api/v1/members/utils/getFounder";
 import { getFinance } from "@/app/api/v1/members/utils/getFinance";

@@ -40,4 +40,18 @@ async function uploadPhotoToBlob(image: FormData): Promise<string | null> {
   }
 }
 
-export { updateEvent, deletePhoto, uploadPhotoToBlob };
+async function deleteEvent(eventId: number): Promise<boolean> {
+  await connectMongo();
+  try {
+    const response = await EventModel.deleteOne({ _id: eventId });
+    if (response.deletedCount === 1) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Failed to delete event: ", error);
+    return false;
+  }
+}
+
+export { updateEvent, deletePhoto, uploadPhotoToBlob, deleteEvent };

@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { IMember } from "@/Schemas/MemberSchema";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 interface MemberDialogProps {
   isOpen: boolean;
