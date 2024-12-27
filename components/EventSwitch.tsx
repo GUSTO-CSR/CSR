@@ -17,7 +17,7 @@ export default function EventSwitch({
   };
 
   return (
-    <div className="w-11/12 m-auto flex justify-center mt-20 lg:mt-28 xl:mt-32">
+    <div className="w-11/12 m-auto flex justify-center mt-5 ">
       <div className="lg:w-4/12 w-8/12 flex bg-primary dark:bg-secondary text-center rounded-full shadow-md font-semibold text-sm lg:text-base transition-all">
         <button
           className={`w-1/2 py-2 rounded-l-full transition-all duration-300 ${

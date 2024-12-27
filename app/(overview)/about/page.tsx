@@ -107,7 +107,7 @@ export default function MemberList() {
   }
 
   return (
-    <main className="bg-backgroud dark:bg-content flex-grow pt-24 sm:pt-32">
+    <main className="bg-backgroud dark:bg-content flex-grow  mt-5">
       <div className="m-auto w-10/12 md:w-9/12">
         <h1 className="text-4xl font-bold text-center">Our Members</h1>
         <MiniNav role={role} setRole={setRole} />

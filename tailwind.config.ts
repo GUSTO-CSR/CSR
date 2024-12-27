@@ -1,12 +1,12 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
 
 const config = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
   prefix: "",
   theme: {
@@ -39,11 +39,16 @@ const config = {
           "25%, 50%": { transform: "translateX(-100%)" },
           "60%, 90%": { transform: "translateX(-200%)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         slide: "slide 20s ease-in-out infinite",
+        marquee: "marquee 15s linear infinite",
       },
     },
   },
@@ -59,6 +64,6 @@ const config = {
       });
     },
   ],
-} satisfies Config
+} satisfies Config;
 
-export default config
+export default config;
