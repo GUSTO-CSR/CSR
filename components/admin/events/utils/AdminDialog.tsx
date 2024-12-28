@@ -199,7 +199,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
   return (
     <Dialog>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="h-3/5 w-[875px] max-w-none">
+      <DialogContent className="h-fit w-[875px] max-w-none">
         <DialogHeader>
           <DialogTitle>Event Form</DialogTitle>
           <DialogDescription className="h-full">
@@ -207,7 +207,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
               {/* Section 1: Event Details */}
               {currentStep === 1 && (
                 <section className="flex flex-col h-full w-full justify-evenly">
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col mt-3">
                     <Label htmlFor="title" className="text-lg">
                       Event Title
                     </Label>
@@ -221,7 +221,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
                       }}
                     />
                   </div>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col mt-3">
                     <Label htmlFor="description" className="text-lg">
                       Description
                     </Label>
@@ -235,7 +235,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
                       }}
                     />
                   </div>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col mt-3">
                     <Label htmlFor="date" className="text-lg">
                       Date
                     </Label>
@@ -267,7 +267,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col mt-3">
                     <Label htmlFor="donated" className="text-lg">
                       Donated Amount:
                     </Label>
@@ -286,7 +286,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
 
               {/* Section 2: Photo Upload */}
               {currentStep === 2 && (
-                <section className="grid grid-cols-3 h-full gap-4 items-end">
+                <section className="grid grid-cols-3 gap-3 h-full mt-3 items-end">
                   <div>
                     <Label className="text-lg">Main Photo</Label>
                     <ImagePick
@@ -328,8 +328,8 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
 
               {/* Section 3: Member Selection */}
               {currentStep === 3 && (
-                <section className="h-full">
-                  <p className="w-full p-2 bg-slate-400 text-lg text-center rounded text-white">
+                <section className="h-full mt-3">
+                  <p className="w-full p-2 bg-red-500 text-lg text-center rounded text-white">
                     Note: Don't add members if this is a future event.
                   </p>
                   <div className="relative w-full h-full flex flex-row items-center">
@@ -348,17 +348,17 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
 
         {/* Navigation Buttons */}
         <DialogFooter className="mt-auto">
-          <div className="">
+          <div className="flex items-center mt-4">
             {event && (
               <Trash2
-                className="cursor-pointer text-red-400"
+                className="cursor-pointer text-red-400 me-4"
                 onClick={() => {
                   handleDelete(event._id);
                 }}
               />
             )}
             {currentStep > 1 && (
-              <Button className="bg-slate-500" onClick={previousStep}>
+              <Button className="bg-slate-500 me-4" onClick={previousStep}>
                 Previous
               </Button>
             )}

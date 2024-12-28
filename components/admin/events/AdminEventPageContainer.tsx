@@ -74,7 +74,7 @@ export default function AdminEventPageContainer() {
         {loading ? (
           <EventSkeleton />
         ) : (
-          <div className="flex flex-row flex-wrap gap-3 w-full h-auto p-2 justify-center">
+          <div className="flex flex-row flex-wrap gap-4 w-full h-auto p-2 justify-center">
             {events.map((event) => (
               <AdminDialog event={event} key={event.id}>
                 <EventWidget event={event} filter={eventType} dayRange={date} />
