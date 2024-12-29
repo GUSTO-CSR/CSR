@@ -31,6 +31,7 @@ export default function AdminEventPageContainer() {
       label: "Upcoming",
     },
   ];
+
   const handleEventType = (eventNumber: string) => {
     setEventType(eventNumber);
   };
@@ -42,6 +43,7 @@ export default function AdminEventPageContainer() {
     setLoading(false);
     console.log(events);
   };
+
   useEffect(() => {
     getEventsFromDB();
   }, []);
@@ -54,7 +56,7 @@ export default function AdminEventPageContainer() {
   return (
     <main>
       <section className="flex flex-row items-center p-3 gap-4 justify-end">
-        <AdminDialog>
+        <AdminDialog onEventChange={getEventsFromDB}>
           <Button className="flex flex-row gap-1 items-center">
             <CiCirclePlus /> New
           </Button>
@@ -76,7 +78,11 @@ export default function AdminEventPageContainer() {
         ) : (
           <div className="flex flex-row flex-wrap gap-4 w-full h-auto p-2 justify-center">
             {events.map((event) => (
-              <AdminDialog event={event} key={event.id}>
+              <AdminDialog
+                event={event}
+                key={event._id}
+                onEventChange={getEventsFromDB}
+              >
                 <EventWidget event={event} filter={eventType} dayRange={date} />
               </AdminDialog>
             ))}

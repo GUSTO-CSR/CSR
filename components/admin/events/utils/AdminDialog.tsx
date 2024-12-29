@@ -36,9 +36,14 @@ import { Trash2 } from "lucide-react";
 interface AdminDialogProps {
   event?: IEvent;
   children: React.ReactNode;
+  onEventChange: () => void;
 }
 
-export default function AdminDialog({ event, children }: AdminDialogProps) {
+export default function AdminDialog({
+  event,
+  children,
+  onEventChange,
+}: AdminDialogProps) {
   const eventDate = event?.EventDate ? new Date(event.EventDate) : new Date();
   const isValidDate = !isNaN(eventDate.getTime()); // Check if the parsed date is valid
   const [currentStep, setCurrentStep] = useState(1);
@@ -104,6 +109,18 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
     }
   };
 
+  const resetState = () => {
+    setTitle("");
+    setDescription("");
+    setDonatedAmount(undefined);
+    setDate(new Date());
+    setMainPhoto(undefined);
+    setEventPhotos([undefined, undefined, undefined, undefined, undefined]);
+    setEventTime(false);
+    setMembers([]);
+    setCurrentStep(1);
+  };
+
   const handleFormSubmit = async () => {
     const memberIdList = members.map((member: MemberSelectProps) => member._id);
 
@@ -157,6 +174,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
         toast.error("Sorry, updating event went wrong!");
       } else {
         toast.success("Event Updated!");
+        onEventChange();
         setIsOpen(false);
       }
     } else {
@@ -176,7 +194,9 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
         toast.error("Sorry, event creation went wrong!");
       } else {
         toast.success("Event created!");
+        resetState();
         setIsOpen(false);
+        onEventChange();
       }
     }
   };
@@ -200,6 +220,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
     if (response) {
       toast.success("Event Deleted Successfully");
       setIsOpen(false);
+      onEventChange();
     } else {
       toast.error("Failed to delete event");
     }
