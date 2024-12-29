@@ -26,6 +26,7 @@ import { fetchMemberDetails } from "@/app/csrsadmin/apis/members/admin_members";
 import {
   createEvent,
   deleteEvent,
+  generateUniqueIdEvent,
   updateEvent,
   uploadPhotoToBlob,
 } from "@/app/csrsadmin/apis/events/admin_events";
@@ -137,7 +138,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
     setEventPhotos(uploadedPhotos as (string | undefined)[]); // Update the state with the uploaded URLs
 
     // Continue with form submission logic here (e.g., updating the event)
-    try {
+    if (event) {
       const updateEventData: IEventData = {
         _id: event!._id,
         EventName: title,
@@ -152,9 +153,11 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
 
       const updatedEvent = await updateEvent(updateEventData);
       if (!updatedEvent) {
-        toast.error("Sorry, something went wrong!");
+        toast.error("Sorry, updating event went wrong!");
+      } else {
+        toast.success("Event Updated!");
       }
-    } catch (error) {
+    } else {
       const newEvent: Omit<IEventData, "_id"> = {
         EventName: title,
         EventDescription: description,
@@ -168,7 +171,9 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
 
       const createdEvent = await createEvent(newEvent as IEventData);
       if (!createdEvent) {
-        toast.error("Sorry, something went wrong!");
+        toast.error("Sorry, event creation went wrong!");
+      } else {
+        toast.success("Event created!");
       }
     }
   };

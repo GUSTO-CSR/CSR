@@ -54,10 +54,26 @@ async function deleteEvent(eventId: number): Promise<boolean> {
   }
 }
 
+async function generateUniqueIdEvent(): Promise<number> {
+  const lastMember = await EventModel.findOne().sort({ _id: -1 }).exec();
+  return lastMember ? lastMember._id + 1 : 1;
+}
+
 async function createEvent(event: IEventData): Promise<string | null> {
   await connectMongo();
   try {
-    const newEvent = new EventModel(event);
+    const uniqueId = await generateUniqueIdEvent();
+    const newEvent = new EventModel({
+      _id: uniqueId,
+      EventName: event.EventName,
+      EventDescription: event.EventDescription,
+      EventPhotoURL: event.EventPhotoURL,
+      EventPhotoList: event.EventPhotoList,
+      DonatedAmount: event.DonatedAmount,
+      EventDate: event.EventDate,
+      Completed: event.Completed,
+      MemberLists: event.MemberLists,
+    });
     await newEvent.save();
     return JSON.stringify(newEvent);
   } catch (error) {
@@ -72,4 +88,5 @@ export {
   uploadPhotoToBlob,
   deleteEvent,
   createEvent,
+  generateUniqueIdEvent,
 };
