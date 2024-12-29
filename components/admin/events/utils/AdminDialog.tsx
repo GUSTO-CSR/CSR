@@ -42,6 +42,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
   const eventDate = event?.EventDate ? new Date(event.EventDate) : new Date();
   const isValidDate = !isNaN(eventDate.getTime()); // Check if the parsed date is valid
   const [currentStep, setCurrentStep] = useState(1);
+  const [isOpen, setIsOpen] = useState(false); // Added isOpen state
 
   //first section
   const [title, setTitle] = useState(event?.EventName || "");
@@ -156,6 +157,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
         toast.error("Sorry, updating event went wrong!");
       } else {
         toast.success("Event Updated!");
+        setIsOpen(false);
       }
     } else {
       const newEvent: Omit<IEventData, "_id"> = {
@@ -174,6 +176,7 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
         toast.error("Sorry, event creation went wrong!");
       } else {
         toast.success("Event created!");
+        setIsOpen(false);
       }
     }
   };
@@ -196,13 +199,16 @@ export default function AdminDialog({ event, children }: AdminDialogProps) {
     const response = await deleteEvent(id);
     if (response) {
       toast.success("Event Deleted Successfully");
+      setIsOpen(false);
     } else {
       toast.error("Failed to delete event");
     }
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      {" "}
+      {/* Modified Dialog component */}
       <DialogTrigger>{children}</DialogTrigger>
       <DialogContent className="h-fit w-[875px] max-w-none">
         <DialogHeader>
