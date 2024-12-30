@@ -171,3 +171,5 @@ async function deleteDonation(
     return JSON.stringify(response);
   }
 }
+
+export { getDonationByEvent, createDonations, updateDonation, deleteDonation };

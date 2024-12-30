@@ -1,7 +1,31 @@
 "use server";
+import { CustomResponse } from "@/app/custom-response";
 import connectMongo from "@/app/db/mongoConnect";
 import EventModel, { IEventData } from "@/Schemas/EventSchema";
 import { del, put } from "@vercel/blob";
+
+async function getEventNamesAndIds(): Promise<string | null> {
+  const response: CustomResponse<any[]> = {
+    status: false,
+    message: "No Error Message Provided!",
+    data: [],
+  };
+
+  try {
+    // Fetch only EventName and _id
+    const events = await EventModel.find({}, "EventName _id"); // Select only these two fields
+
+    response.status = true;
+    response.message = "Events fetched successfully!";
+    response.data = events;
+    return JSON.stringify(response);
+  } catch (error) {
+    console.error("Error fetching events: ", error);
+    response.error = true;
+    response.message = "Error Fetching Events!";
+    return JSON.stringify(response);
+  }
+}
 
 async function updateEvent(event: IEventData): Promise<string | null> {
   await connectMongo();
@@ -88,4 +112,5 @@ export {
   deleteEvent,
   createEvent,
   generateUniqueIdEvent,
+  getEventNamesAndIds,
 };
