@@ -1,5 +1,6 @@
 "use server";
 import mongoose, { Document, Schema } from "mongoose";
+import DonationSchema, { IDonation } from "./DonationSchema";
 
 export interface IEvent extends Document {
   _id: number;
@@ -11,6 +12,7 @@ export interface IEvent extends Document {
   EventDate: Date;
   Completed: boolean;
   MemberLists?: number[];
+  Donations?: IDonation[];
 }
 
 const EventSchema: Schema = new Schema({
@@ -23,6 +25,7 @@ const EventSchema: Schema = new Schema({
   EventDate: { type: Date, required: true },
   Completed: { type: Boolean, required: true },
   MemberLists: [{ type: [Number], required: false, default: [] }],
+  Donations: [{ type: [DonationSchema], required: false, default: [] }],
 });
 
 export type IEventData = Pick<
@@ -36,6 +39,7 @@ export type IEventData = Pick<
   | "EventDate"
   | "Completed"
   | "MemberLists"
+  | "Donations"
 >;
 
 const EventModel =
