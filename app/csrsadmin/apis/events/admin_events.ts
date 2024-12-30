@@ -1,11 +1,11 @@
 "use server";
-import { CustomResponse } from "@/app/custom-response";
+import { CustomResponse, EventSummary } from "@/app/custom-response";
 import connectMongo from "@/app/db/mongoConnect";
 import EventModel, { IEventData } from "@/Schemas/EventSchema";
 import { del, put } from "@vercel/blob";
 
-async function getEventNamesAndIds(): Promise<string | null> {
-  const response: CustomResponse<any[]> = {
+async function getEventNamesAndIds(): Promise<string> {
+  const response: CustomResponse<EventSummary[]> = {
     status: false,
     message: "No Error Message Provided!",
     data: [],
@@ -13,7 +13,7 @@ async function getEventNamesAndIds(): Promise<string | null> {
 
   try {
     // Fetch only EventName and _id
-    const events = await EventModel.find({}, "EventName _id"); // Select only these two fields
+    const events: EventSummary[] = await EventModel.find({}, "_id EventName");
 
     response.status = true;
     response.message = "Events fetched successfully!";

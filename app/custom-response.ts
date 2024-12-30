@@ -4,3 +4,8 @@ export interface CustomResponse<T> {
   error?: boolean;
   message: string;
 }
+
+export interface EventSummary {
+  _id: number;
+  EventName: string;
+}

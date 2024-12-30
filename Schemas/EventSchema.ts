@@ -1,6 +1,6 @@
 "use server";
 import mongoose, { Document, Schema } from "mongoose";
-import DonationSchema, { IDonation } from "./DonationSchema";
+import { IDonation } from "./DonationSchema";
 
 export interface IEvent extends Document {
   _id: number;
@@ -14,6 +14,15 @@ export interface IEvent extends Document {
   MemberLists?: number[];
   Donations?: IDonation[];
 }
+
+// Define the schema
+const DonationSchema: Schema = new Schema({
+  _id: { type: Number, required: true },
+  Name: { type: String, required: true },
+  Batch: { type: String },
+  Balance: { type: Number, required: true },
+  CreatedTime: { type: Date, required: true, default: () => new Date() },
+});
 
 const EventSchema: Schema = new Schema({
   _id: { type: Number, required: true },
