@@ -10,7 +10,6 @@ async function updateEvent(event: IEventData): Promise<string | null> {
       new: true,
     });
 
-    console.log(event.EventPhotoList);
     return JSON.stringify(updatedEvent);
   } catch (error) {
     console.error("Failed to update event: ", error);
