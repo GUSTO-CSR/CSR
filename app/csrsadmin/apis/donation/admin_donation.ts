@@ -5,6 +5,35 @@ import connectMongo from "@/app/db/mongoConnect";
 import { IDonation } from "@/Schemas/DonationSchema";
 import EventModel, { IEvent } from "@/Schemas/EventSchema";
 
+async function getDonationByEvent(eventId: number): Promise<string> {
+  await connectMongo();
+  const response: CustomResponse<IDonation[]> = {
+    status: false,
+    message: "No Error Message Provided!",
+  };
+  try {
+    // Explicitly type the event variable
+    const event: IEvent | null = await EventModel.findById(eventId);
+    if (!event) {
+      response.data = null;
+      response.message = "Event Not Found!";
+      return JSON.stringify(response);
+    }
+
+    const donations = event.Donations || [];
+
+    response.status = true;
+    response.message = "Donations fetched successfully!";
+    response.data = donations;
+    return JSON.stringify(response);
+  } catch (error) {
+    console.error("Failed to fetch donations: ", error);
+    response.error = true;
+    response.message = "Error Fetching Donations!";
+    return JSON.stringify(response);
+  }
+}
+
 async function createDonations(
   eventId: number,
   donations: IDonation[]
