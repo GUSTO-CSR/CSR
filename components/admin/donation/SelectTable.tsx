@@ -6,7 +6,7 @@ import { EventSummary } from "@/app/custom-response";
 interface SelectTableProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (topic: string) => void;
+  onSave: (eventId: number | undefined) => void;
   topics: EventSummary[] | null;
   isLoading: boolean;
 }
@@ -18,7 +18,7 @@ export function SelectTable({
   topics,
   isLoading,
 }: SelectTableProps) {
-  const [selectedTopic, setSelectedTopic] = useState("");
+  const [selectedTopic, setSelectedTopic] = useState<number>();
 
   if (!isOpen) return null;
 
@@ -33,14 +33,14 @@ export function SelectTable({
         ) : (
           <select
             value={selectedTopic}
-            onChange={(e) => setSelectedTopic(e.target.value)}
+            onChange={(e) => setSelectedTopic(Number(e.target.value))}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
           >
             <option value="" disabled>
               Select an event
             </option>
             {topics?.map((topic) => (
-              <option key={topic._id} value={topic.EventName}>
+              <option key={topic._id} value={topic._id}>
                 {topic.EventName}
               </option>
             ))}
@@ -50,7 +50,7 @@ export function SelectTable({
           <Button
             onClick={() => {
               onSave(selectedTopic);
-              setSelectedTopic("");
+              setSelectedTopic(-1);
             }}
             className="bg-blue-500 text-white hover:bg-blue-600 mr-2"
             disabled={isLoading || !selectedTopic}
