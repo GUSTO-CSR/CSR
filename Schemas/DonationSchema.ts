@@ -6,7 +6,7 @@ export interface IDonation extends Document {
   _id: number;
   Name: string;
   Batch: string;
-  Balance: string;
+  Balance: number;
   CreatedTime: Date;
 }
 
