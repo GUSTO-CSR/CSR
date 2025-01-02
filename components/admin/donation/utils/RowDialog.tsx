@@ -1,17 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-
-interface RowData {
-  name: string;
-  batch: string;
-  amount: number;
-}
+import { IDonation } from "@/Schemas/DonationSchema";
 
 interface RowDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (rowData: RowData) => void;
-  initialData?: RowData;
+  onSave: (rowData: IDonation) => void;
+  initialData?: IDonation;
 }
 
 export function RowDialog({
@@ -20,10 +15,12 @@ export function RowDialog({
   onSave,
   initialData,
 }: RowDialogProps) {
-  const [rowData, setRowData] = useState<RowData>({
-    name: "",
-    batch: "",
-    amount: 0,
+  const [rowData, setRowData] = useState<Partial<IDonation>>({
+    _id: -1,
+    Name: "",
+    Batch: "",
+    Balance: 0,
+    CreatedTime: new Date(),
   });
 
   useEffect(() => {
@@ -42,8 +39,8 @@ export function RowDialog({
           Name
           <input
             type="text"
-            value={rowData.name}
-            onChange={(e) => setRowData({ ...rowData, name: e.target.value })}
+            value={rowData.Name}
+            onChange={(e) => setRowData({ ...rowData, Name: e.target.value })}
             placeholder="Enter name"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
           />
@@ -52,8 +49,8 @@ export function RowDialog({
           Batch Number
           <input
             type="text"
-            value={rowData.batch}
-            onChange={(e) => setRowData({ ...rowData, batch: e.target.value })}
+            value={rowData.Batch}
+            onChange={(e) => setRowData({ ...rowData, Batch: e.target.value })}
             placeholder="Enter batch number"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
           />
@@ -62,9 +59,9 @@ export function RowDialog({
           Donate Amount
           <input
             type="number"
-            value={rowData.amount}
+            value={rowData.Balance}
             onChange={(e) =>
-              setRowData({ ...rowData, amount: parseFloat(e.target.value) })
+              setRowData({ ...rowData, Balance: parseFloat(e.target.value) })
             }
             placeholder="Enter donate amount"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
@@ -72,7 +69,7 @@ export function RowDialog({
         </label>
         <div className="flex justify-end">
           <Button
-            onClick={() => onSave(rowData)}
+            onClick={() => onSave(rowData as IDonation)}
             className="bg-blue-500 text-white hover:bg-blue-600 mr-2"
           >
             Save
