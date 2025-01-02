@@ -13,21 +13,27 @@ export function RowDialog({
   isOpen,
   onClose,
   onSave,
-  initialData,
+  initialData = undefined,
 }: RowDialogProps) {
-  const [rowData, setRowData] = useState<Partial<IDonation>>({
-    _id: -1,
-    Name: "",
-    Batch: "",
-    Balance: 0,
-    CreatedTime: new Date(),
-  });
+  const [rowData, setRowData] = useState<Partial<IDonation>>({});
 
   useEffect(() => {
     if (initialData) {
       setRowData(initialData);
+    } else {
+      setEmptyDonation();
     }
   }, [initialData]);
+
+  const setEmptyDonation = () => {
+    setRowData({
+      _id: -1,
+      Name: "",
+      Batch: "",
+      Balance: 0,
+      CreatedTime: new Date(),
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -69,13 +75,19 @@ export function RowDialog({
         </label>
         <div className="flex justify-end">
           <Button
-            onClick={() => onSave(rowData as IDonation)}
+            onClick={() => {
+              onSave(rowData as IDonation);
+              setEmptyDonation();
+            }}
             className="bg-blue-500 text-white hover:bg-blue-600 mr-2"
           >
             Save
           </Button>
           <Button
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              setEmptyDonation();
+            }}
             className="bg-gray-500 text-white hover:bg-gray-600"
           >
             Cancel

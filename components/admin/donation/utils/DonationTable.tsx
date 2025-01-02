@@ -6,6 +6,7 @@ import { IDonation } from "@/Schemas/DonationSchema";
 interface DonationTableProps {
   topic: string;
   rows: IDonation[];
+  newRows: IDonation[];
   onAddRow: () => void;
   onEditRow: (rowIndex: number) => void;
   onDeleteRow: (rowIndex: number) => void;
@@ -15,6 +16,7 @@ interface DonationTableProps {
 export function DonationTable({
   topic,
   rows,
+  newRows,
   onAddRow,
   onEditRow,
   onDeleteRow,
@@ -49,32 +51,65 @@ export function DonationTable({
           </tr>
         </thead>
         <tbody>
-          {rows.length > 0 ? (
-            rows.map((row, rowIndex) => (
-              <tr key={rowIndex} className="text-center">
-                <td className="border border-gray-300 px-4 py-2">{row.Name}</td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {row.Batch}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  ${row.Balance.toFixed(2)}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <Button
-                    onClick={() => onEditRow(rowIndex)}
-                    className="bg-yellow-500 text-white hover:bg-yellow-600 mr-2"
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => onDeleteRow(rowIndex)}
-                    className="bg-red-500 text-white hover:bg-red-600"
-                  >
-                    Delete
-                  </Button>
-                </td>
-              </tr>
-            ))
+          {rows.length > 0 || newRows.length > 0 ? (
+            <>
+              {rows.map((row, rowIndex) => (
+                <tr key={rowIndex} className="text-center">
+                  <td className="border border-gray-300 px-4 py-2">
+                    {row.Name}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {row.Batch}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {row.Balance.toFixed(2)} kyats
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <Button
+                      onClick={() => onEditRow(rowIndex)}
+                      className="bg-yellow-500 text-white hover:bg-yellow-600 mr-2"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={() => onDeleteRow(rowIndex)}
+                      className="bg-red-500 text-white hover:bg-red-600"
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {/* New Donations */}
+              {/* TODO: change new donation style */}
+              {newRows.map((row, rowIndex) => (
+                <tr key={rowIndex} className="text-center">
+                  <td className="border border-gray-300 px-4 py-2">
+                    {row.Name}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {row.Batch}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {row.Balance.toFixed(2)} kyats
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <Button
+                      onClick={() => onEditRow(rowIndex)}
+                      className="bg-yellow-500 text-white hover:bg-yellow-600 mr-2"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={() => onDeleteRow(rowIndex)}
+                      className="bg-red-500 text-white hover:bg-red-600"
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </>
           ) : (
             <tr>
               <td

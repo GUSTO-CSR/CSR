@@ -14,7 +14,13 @@ import { ShowResult } from "@/lib/utils";
 export default function DonationPage() {
   const [topics, setTopics] = useState<EventSummary[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<EventSummary | null>(null);
+
+  //Donation Table States
   const [tables, setTables] = useState<IDonation[] | null>(null);
+  const [newDonations, setNewDoatins] = useState<IDonation[]>([]);
+  const [editingDonation, setEditingDonation] = useState<IDonation | null>(
+    null
+  );
 
   //Dialog States
   const [isAddTableDialogOpen, setIsAddTableDialogOpen] = useState(false);
@@ -72,10 +78,8 @@ export default function DonationPage() {
     setIsAddTableDialogOpen(false);
   };
 
-  const handleAddRow = (tableIndex: number) => {
-    // setCurrentTableIndex(tableIndex);
-    // setCurrentRowIndex(null);
-    // setIsRowDialogOpen(true);
+  const handleAddRow = (donationId?: number) => {
+    setIsRowDialogOpen(true);
   };
 
   const handleEditRow = (tableIndex: number, rowIndex: number) => {
@@ -85,20 +89,15 @@ export default function DonationPage() {
   };
 
   const handleSaveRow = (rowData: IDonation) => {
-    // if (currentTableIndex !== null) {
-    //   setTables((prev) => {
-    //     const updatedTables = [...prev];
-    //     if (currentRowIndex !== null) {
-    //       // Edit existing row
-    //       updatedTables[currentTableIndex].rows[currentRowIndex] = rowData;
-    //     } else {
-    //       // Add new row
-    //       updatedTables[currentTableIndex].rows.push(rowData);
-    //     }
-    //     return updatedTables;
-    //   });
-    //   setIsRowDialogOpen(false);
-    // }
+    if (rowData._id == -1) {
+      const maxId = newDonations.reduce(
+        (max, donation) => (donation._id > max ? donation._id : max),
+        0
+      );
+      rowData._id = maxId + 1;
+      setNewDoatins((prev) => [...prev, rowData]);
+    }
+    setIsRowDialogOpen(false);
   };
 
   const handleDeleteRow = (tableIndex: number, rowIndex: number) => {
@@ -138,13 +137,15 @@ export default function DonationPage() {
         isOpen={isRowDialogOpen}
         onClose={() => setIsRowDialogOpen(false)}
         onSave={handleSaveRow}
+        initialData={editingDonation ?? undefined}
       />
 
       {tables ? (
         <DonationTable
           topic={selectedEvent?.EventName ?? "Event Select Wrong"}
           rows={tables}
-          onAddRow={() => handleAddRow(0)}
+          newRows={newDonations}
+          onAddRow={handleAddRow}
           onEditRow={(rowIndex) => handleEditRow(0, rowIndex)}
           onDeleteRow={(rowIndex) => handleDeleteRow(0, rowIndex)}
           onDeleteTable={() => handleDeleteTable(0)}
