@@ -1,14 +1,11 @@
-import { Button } from "@/components/ui/button";
+"use client";
 
-interface TableRow {
-  name: string;
-  batch: string;
-  amount: number;
-}
+import { Button } from "@/components/ui/button";
+import { IDonation } from "@/Schemas/DonationSchema";
 
 interface DonationTableProps {
   topic: string;
-  rows: TableRow[];
+  rows: IDonation[];
   onAddRow: () => void;
   onEditRow: (rowIndex: number) => void;
   onDeleteRow: (rowIndex: number) => void;
@@ -55,12 +52,12 @@ export function DonationTable({
           {rows.length > 0 ? (
             rows.map((row, rowIndex) => (
               <tr key={rowIndex} className="text-center">
-                <td className="border border-gray-300 px-4 py-2">{row.name}</td>
+                <td className="border border-gray-300 px-4 py-2">{row.Name}</td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {row.batch}
+                  {row.Batch}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  ${row.amount.toFixed(2)}
+                  ${row.Balance.toFixed(2)}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
                   <Button

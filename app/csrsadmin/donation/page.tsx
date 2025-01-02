@@ -7,35 +7,33 @@ import { RowDialog } from "@/components/admin/donation/utils/RowDialog";
 import { DonationTable } from "@/components/admin/donation/utils/DonationTable";
 import { CustomResponse, EventSummary } from "@/app/custom-response";
 import toast, { Toaster } from "react-hot-toast";
-
-interface TableRow {
-  name: string;
-  batch: string;
-  amount: number;
-}
-
-interface TableData {
-  topic: string;
-  rows: TableRow[];
-}
+import { IDonation } from "@/Schemas/DonationSchema";
+import { getDonationByEvent } from "../apis/donation/admin_donation";
+import { ShowResult } from "@/lib/utils";
 
 export default function DonationPage() {
-  const [tables, setTables] = useState<TableData[]>([]);
+  const [topics, setTopics] = useState<EventSummary[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<EventSummary | null>(null);
+  const [tables, setTables] = useState<IDonation[] | null>(null);
+
+  //Dialog States
   const [isAddTableDialogOpen, setIsAddTableDialogOpen] = useState(false);
   const [isRowDialogOpen, setIsRowDialogOpen] = useState(false);
-  const [currentTableIndex, setCurrentTableIndex] = useState<number | null>(
-    null
-  );
-  const [currentRowIndex, setCurrentRowIndex] = useState<number | null>(null);
-  const [topics, setTopics] = useState<EventSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  //Loading States
+  const [isEventNameLoading, setIsEventNameLoading] = useState(true);
+  const [isDonationDataLoading, setIsDonationDataLoading] = useState(false);
 
   useEffect(() => {
     fetchEvents();
   }, []);
 
+  useEffect(() => {
+    fetchDonationData();
+  }, [selectedEvent]);
+
   const fetchEvents = async () => {
-    setIsLoading(true);
+    setIsEventNameLoading(true);
     const response = await getEventNamesAndIds();
     const data: CustomResponse<EventSummary[]> = JSON.parse(response);
     if (data.error) {
@@ -45,53 +43,74 @@ export default function DonationPage() {
     if (data.data) {
       setTopics(data.data);
     }
-    setIsLoading(false);
+    setIsEventNameLoading(false);
   };
 
-  const handleAddTable = (topic: string) => {
-    setTables((prev) => [...prev, { topic, rows: [] }]);
+  const fetchDonationData = async () => {
+    setIsDonationDataLoading(true);
+    if (selectedEvent) {
+      const response = await getDonationByEvent(selectedEvent._id);
+      const data: CustomResponse<IDonation[]> = JSON.parse(response);
+      const status = ShowResult<IDonation[]>(data);
+      if (status) {
+        setTables(data.data!);
+      }
+    } else {
+      toast.error("No Event Selected");
+    }
+    setIsDonationDataLoading(false);
+  };
+
+  const handleAddTable = (eventId: number | undefined) => {
+    const selected = topics.find((topic) => topic._id === eventId);
+    if (selected) {
+      setSelectedEvent(selected);
+      setIsAddTableDialogOpen(false);
+    } else {
+      toast.error("Event not found");
+    }
     setIsAddTableDialogOpen(false);
   };
 
   const handleAddRow = (tableIndex: number) => {
-    setCurrentTableIndex(tableIndex);
-    setCurrentRowIndex(null);
-    setIsRowDialogOpen(true);
+    // setCurrentTableIndex(tableIndex);
+    // setCurrentRowIndex(null);
+    // setIsRowDialogOpen(true);
   };
 
   const handleEditRow = (tableIndex: number, rowIndex: number) => {
-    setCurrentTableIndex(tableIndex);
-    setCurrentRowIndex(rowIndex);
-    setIsRowDialogOpen(true);
+    // setCurrentTableIndex(tableIndex);
+    // setCurrentRowIndex(rowIndex);
+    // setIsRowDialogOpen(true);
   };
 
-  const handleSaveRow = (rowData: TableRow) => {
-    if (currentTableIndex !== null) {
-      setTables((prev) => {
-        const updatedTables = [...prev];
-        if (currentRowIndex !== null) {
-          // Edit existing row
-          updatedTables[currentTableIndex].rows[currentRowIndex] = rowData;
-        } else {
-          // Add new row
-          updatedTables[currentTableIndex].rows.push(rowData);
-        }
-        return updatedTables;
-      });
-      setIsRowDialogOpen(false);
-    }
+  const handleSaveRow = (rowData: IDonation) => {
+    // if (currentTableIndex !== null) {
+    //   setTables((prev) => {
+    //     const updatedTables = [...prev];
+    //     if (currentRowIndex !== null) {
+    //       // Edit existing row
+    //       updatedTables[currentTableIndex].rows[currentRowIndex] = rowData;
+    //     } else {
+    //       // Add new row
+    //       updatedTables[currentTableIndex].rows.push(rowData);
+    //     }
+    //     return updatedTables;
+    //   });
+    //   setIsRowDialogOpen(false);
+    // }
   };
 
   const handleDeleteRow = (tableIndex: number, rowIndex: number) => {
-    setTables((prev) => {
-      const updatedTables = [...prev];
-      updatedTables[tableIndex].rows.splice(rowIndex, 1);
-      return updatedTables;
-    });
+    // setTables((prev) => {
+    // const updatedTables = [...prev];
+    // updatedTables[tableIndex].rows.splice(rowIndex, 1);
+    // return updatedTables;
+    // });
   };
 
   const handleDeleteTable = (tableIndex: number) => {
-    setTables((prev) => prev.filter((_, index) => index !== tableIndex));
+    // setTables((prev) => prev.filter((_, index) => index !== tableIndex));
   };
 
   return (
@@ -103,7 +122,7 @@ export default function DonationPage() {
           onClick={() => setIsAddTableDialogOpen(true)}
           className="bg-blue-500 text-white hover:bg-blue-600"
         >
-          Add New Table
+          {selectedEvent ? "Change Event" : "Select Event"}
         </Button>
       </div>
 
@@ -112,31 +131,33 @@ export default function DonationPage() {
         onClose={() => setIsAddTableDialogOpen(false)}
         onSave={handleAddTable}
         topics={topics}
-        isLoading={isLoading}
+        isLoading={isEventNameLoading}
       />
 
       <RowDialog
         isOpen={isRowDialogOpen}
         onClose={() => setIsRowDialogOpen(false)}
         onSave={handleSaveRow}
-        initialData={
-          currentTableIndex !== null && currentRowIndex !== null
-            ? tables[currentTableIndex].rows[currentRowIndex]
-            : undefined
-        }
       />
 
-      {tables.map((table, index) => (
+      {tables ? (
         <DonationTable
-          key={index}
-          topic={table.topic}
-          rows={table.rows}
-          onAddRow={() => handleAddRow(index)}
-          onEditRow={(rowIndex) => handleEditRow(index, rowIndex)}
-          onDeleteRow={(rowIndex) => handleDeleteRow(index, rowIndex)}
-          onDeleteTable={() => handleDeleteTable(index)}
+          topic={selectedEvent?.EventName ?? "Event Select Wrong"}
+          rows={tables}
+          onAddRow={() => handleAddRow(0)}
+          onEditRow={(rowIndex) => handleEditRow(0, rowIndex)}
+          onDeleteRow={(rowIndex) => handleDeleteRow(0, rowIndex)}
+          onDeleteTable={() => handleDeleteTable(0)}
         />
-      ))}
+      ) : (
+        <>
+          <p>
+            Click <q>Select Event</q> to load data
+          </p>
+          <p>To Change Event click the same button.</p>
+          <p>The button is on the right top of the screen.</p>
+        </>
+      )}
     </main>
   );
 }

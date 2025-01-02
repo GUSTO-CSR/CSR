@@ -18,7 +18,7 @@ export function SelectTable({
   topics,
   isLoading,
 }: SelectTableProps) {
-  const [selectedTopic, setSelectedTopic] = useState<number>();
+  const [selectedTopic, setSelectedTopic] = useState<number | null>(null);
 
   if (!isOpen) return null;
 
@@ -32,7 +32,7 @@ export function SelectTable({
           </div>
         ) : (
           <select
-            value={selectedTopic}
+            value={selectedTopic ?? ""}
             onChange={(e) => setSelectedTopic(Number(e.target.value))}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
           >
@@ -49,16 +49,19 @@ export function SelectTable({
         <div className="flex justify-end">
           <Button
             onClick={() => {
-              onSave(selectedTopic);
-              setSelectedTopic(-1);
+              onSave(selectedTopic ?? undefined);
+              setSelectedTopic(null);
             }}
             className="bg-blue-500 text-white hover:bg-blue-600 mr-2"
-            disabled={isLoading || !selectedTopic}
+            disabled={isLoading || selectedTopic === null}
           >
             Save
           </Button>
           <Button
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              setSelectedTopic(null);
+            }}
             className="bg-gray-500 text-white hover:bg-gray-600"
           >
             Cancel
