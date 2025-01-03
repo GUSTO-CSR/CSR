@@ -13,6 +13,7 @@ import {
   getDonationByEvent,
 } from "../apis/donation/admin_donation";
 import { ShowResult } from "@/lib/utils";
+import { Info } from "lucide-react";
 
 export default function DonationPage() {
   const [topics, setTopics] = useState<EventSummary[]>([]);
@@ -139,7 +140,7 @@ export default function DonationPage() {
   };
 
   return (
-    <main className="p-6 bg-gray-50 min-h-screen">
+    <main className="p-6 bg-gray-50 min-h-screen relative">
       <Toaster />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Donation Page</h1>
@@ -177,13 +178,23 @@ export default function DonationPage() {
           onDeleteTable={() => handleDeleteTable(0)}
         />
       ) : (
-        <>
-          <p>
-            Click <q>Select Event</q> to load data
-          </p>
-          <p>To Change Event click the same button.</p>
-          <p>The button is on the right top of the screen.</p>
-        </>
+        <div className="flex flex-col items-center justify-center h-64 rounded-lg shadow-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute p-5">
+          <Info className="w-12 h-12 text-blue-500 mb-4" />
+          <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+            No Event Selected
+          </h2>
+          <div className="text-center space-y-2 text-gray-600">
+            <p>
+              Click{" "}
+              <span className="font-medium text-blue-600">
+                &quot;Select Event&quot;
+              </span>{" "}
+              to load data.
+            </p>
+            <p>To change the event, click the same button.</p>
+            <p>The button is located at the top right of the screen.</p>
+          </div>
+        </div>
       )}
     </main>
   );
