@@ -15,7 +15,7 @@ import {
   updateDonation,
 } from "../apis/donation/admin_donation";
 import { ShowResult } from "@/lib/utils";
-import { Info } from "lucide-react";
+import { Info, Loader } from "lucide-react";
 
 export default function DonationPage() {
   const [topics, setTopics] = useState<EventSummary[]>([]);
@@ -211,16 +211,27 @@ export default function DonationPage() {
         initialData={editingDonation ?? undefined}
       />
 
-      {tables ? (
-        <DonationTable
-          topic={selectedEvent?.EventName ?? "Event Select Wrong"}
-          rows={tables}
-          newRows={newDonations}
-          onAddRow={handleAddRow}
-          onEditRow={handleEditRow}
-          onDeleteRow={handleDeleteRow}
-          onDeleteTable={() => handleDeleteTable(0)}
-        />
+      {selectedEvent ? (
+        isDonationDataLoading ? (
+          <div className="flex flex-col items-center justify-center h-64 rounded-lg shadow-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute p-5 z-10">
+            <Loader className="w-12 h-12 text-blue-500 mb-4 animate-spin" />
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+              Loading Donation Data
+            </h2>
+          </div>
+        ) : (
+          tables && (
+            <DonationTable
+              topic={selectedEvent.EventName}
+              rows={tables}
+              newRows={newDonations}
+              onAddRow={handleAddRow}
+              onEditRow={handleEditRow}
+              onDeleteRow={handleDeleteRow}
+              onDeleteTable={() => handleDeleteTable(0)}
+            />
+          )
+        )
       ) : (
         <div className="flex flex-col items-center justify-center h-64 rounded-lg shadow-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute p-5 z-10">
           <Info className="w-12 h-12 text-blue-500 mb-4" />
