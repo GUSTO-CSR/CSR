@@ -72,7 +72,7 @@ export function DonationTable({
                       Edit
                     </Button>
                     <Button
-                      onClick={() => onDeleteRow(rowIndex)}
+                      onClick={() => onDeleteRow(row._id)}
                       className="bg-red-500 text-white hover:bg-red-600"
                     >
                       Delete
@@ -101,7 +101,7 @@ export function DonationTable({
                       Edit
                     </Button>
                     <Button
-                      onClick={() => onDeleteRow(rowIndex)}
+                      onClick={() => onDeleteRow(row._id)}
                       className="bg-red-500 text-white hover:bg-red-600"
                     >
                       Delete

@@ -8,7 +8,10 @@ import { DonationTable } from "@/components/admin/donation/utils/DonationTable";
 import { CustomResponse, EventSummary } from "@/app/custom-response";
 import toast, { Toaster } from "react-hot-toast";
 import { IDonation } from "@/Schemas/DonationSchema";
-import { getDonationByEvent } from "../apis/donation/admin_donation";
+import {
+  deleteDonation,
+  getDonationByEvent,
+} from "../apis/donation/admin_donation";
 import { ShowResult } from "@/lib/utils";
 
 export default function DonationPage() {
@@ -42,11 +45,8 @@ export default function DonationPage() {
     setIsEventNameLoading(true);
     const response = await getEventNamesAndIds();
     const data: CustomResponse<EventSummary[]> = JSON.parse(response);
-    if (data.error) {
-      toast.error(data.message);
-    }
-
-    if (data.data) {
+    const status = ShowResult<EventSummary[]>(data);
+    if (status && data.data) {
       setTopics(data.data);
     }
     setIsEventNameLoading(false);
@@ -79,12 +79,11 @@ export default function DonationPage() {
   };
 
   const handleAddRow = () => {
+    setEditingDonation(null);
     setIsRowDialogOpen(true);
   };
 
   const handleEditRow = (donationId: number) => {
-    console.log(donationId);
-    // console.log(editingDonation ?? undefined);
     const donation =
       tables?.find((donation) => donation._id === donationId) ||
       newDonations.find((donation) => donation._id === donationId);
@@ -108,12 +107,31 @@ export default function DonationPage() {
     setIsRowDialogOpen(false);
   };
 
-  const handleDeleteRow = (tableIndex: number, rowIndex: number) => {
-    // setTables((prev) => {
-    // const updatedTables = [...prev];
-    // updatedTables[tableIndex].rows.splice(rowIndex, 1);
-    // return updatedTables;
-    // });
+  const handleDeleteRow = async (donationId: number) => {
+    const donation = tables?.find((donation) => donation._id === donationId);
+    const newDonation = newDonations.find(
+      (donation) => donation._id === donationId
+    );
+
+    if (donation) {
+      if (selectedEvent) {
+        const reponse = await deleteDonation(selectedEvent?._id, donationId);
+
+        const data: CustomResponse<null> = JSON.parse(reponse);
+        const status = ShowResult<null>(data);
+        if (status) {
+          setTables((prev) =>
+            prev ? prev.filter((donation) => donation._id !== donationId) : null
+          );
+        }
+      }
+    } else if (newDonation) {
+      setNewDoatins((prev) =>
+        prev.filter((donation) => donation._id !== donationId)
+      );
+    } else {
+      toast.error("Donation Not Found!");
+    }
   };
 
   const handleDeleteTable = (tableIndex: number) => {
@@ -155,7 +173,7 @@ export default function DonationPage() {
           newRows={newDonations}
           onAddRow={handleAddRow}
           onEditRow={handleEditRow}
-          onDeleteRow={(rowIndex) => handleDeleteRow(0, rowIndex)}
+          onDeleteRow={handleDeleteRow}
           onDeleteTable={() => handleDeleteTable(0)}
         />
       ) : (

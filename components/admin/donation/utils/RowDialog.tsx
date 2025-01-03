@@ -19,7 +19,6 @@ export function RowDialog({
   const [rowData, setRowData] = useState<Partial<IDonation>>({});
 
   useEffect(() => {
-    console.log(initialData ?? undefined);
     if (initialData) {
       setRowData(initialData);
     } else {
