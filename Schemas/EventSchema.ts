@@ -33,8 +33,8 @@ const EventSchema: Schema = new Schema({
   DonatedAmount: { type: Number, required: false },
   EventDate: { type: Date, required: true },
   Completed: { type: Boolean, required: true },
-  MemberLists: [{ type: [Number], required: false, default: [] }],
-  Donations: [{ type: [DonationSchema], required: false, default: [] }],
+  MemberLists: { type: [Number], required: false, default: [] },
+  Donations: { type: [DonationSchema], required: false, default: [] },
 });
 
 export type IEventData = Pick<

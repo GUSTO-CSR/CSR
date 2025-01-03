@@ -9,6 +9,7 @@ import { CustomResponse, EventSummary } from "@/app/custom-response";
 import toast, { Toaster } from "react-hot-toast";
 import { IDonation } from "@/Schemas/DonationSchema";
 import {
+  createDonations,
   deleteDonation,
   getDonationByEvent,
 } from "../apis/donation/admin_donation";
@@ -139,6 +140,20 @@ export default function DonationPage() {
     // setTables((prev) => prev.filter((_, index) => index !== tableIndex));
   };
 
+  const handleSaveNewDonations = async () => {
+    if (selectedEvent) {
+      const response = await createDonations(selectedEvent._id, newDonations);
+      const data: CustomResponse<IDonation[]> = JSON.parse(response);
+      const status = ShowResult<IDonation[]>(data);
+      if (status && data.data) {
+        setTables(data.data);
+        setNewDoatins([]);
+      }
+    } else {
+      toast.error("No Event Selected");
+    }
+  };
+
   return (
     <main className="p-6 bg-gray-50 min-h-screen relative">
       <Toaster />
@@ -178,7 +193,7 @@ export default function DonationPage() {
           onDeleteTable={() => handleDeleteTable(0)}
         />
       ) : (
-        <div className="flex flex-col items-center justify-center h-64 rounded-lg shadow-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute p-5">
+        <div className="flex flex-col items-center justify-center h-64 rounded-lg shadow-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute p-5 z-10">
           <Info className="w-12 h-12 text-blue-500 mb-4" />
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">
             No Event Selected
@@ -194,6 +209,17 @@ export default function DonationPage() {
             <p>To change the event, click the same button.</p>
             <p>The button is located at the top right of the screen.</p>
           </div>
+        </div>
+      )}
+
+      {newDonations.length > 0 && (
+        <div className="fixed bottom-6 right-6">
+          <Button
+            onClick={handleSaveNewDonations}
+            className="bg-green-500 text-white hover:bg-green-600"
+          >
+            Save
+          </Button>
         </div>
       )}
     </main>

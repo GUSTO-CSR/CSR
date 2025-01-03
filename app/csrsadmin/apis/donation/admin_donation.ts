@@ -4,6 +4,7 @@ import { CustomResponse } from "@/app/custom-response";
 import connectMongo from "@/app/db/mongoConnect";
 import { IDonation } from "@/Schemas/DonationSchema";
 import EventModel, { IEvent } from "@/Schemas/EventSchema";
+import { forIn } from "lodash";
 
 async function getDonationByEvent(eventId: number): Promise<string> {
   await connectMongo();
@@ -43,8 +44,8 @@ async function createDonations(
     status: false,
     message: "No Error Message Provided!",
   };
+
   try {
-    // Explicitly type the event variable
     const event: IEvent | null = await EventModel.findById(eventId);
     if (!event) {
       response.data = null;
@@ -52,12 +53,17 @@ async function createDonations(
       return JSON.stringify(response);
     }
 
-    // Add donations to the Donations list
-    if (event.Donations) {
-      event.Donations.push(...donations);
-    } else {
-      event.Donations = donations;
+    // Ensure Donations is initialized
+    if (!event.Donations) {
+      event.Donations = [];
     }
+
+    // Add each donation object to the Donations list
+    donations.forEach((donation) => {
+      event.Donations?.push(donation);
+    });
+
+    console.log(event.Donations);
 
     await event.save();
 
