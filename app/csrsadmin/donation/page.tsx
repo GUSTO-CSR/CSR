@@ -12,6 +12,7 @@ import {
   createDonations,
   deleteDonation,
   getDonationByEvent,
+  updateDonation,
 } from "../apis/donation/admin_donation";
 import { ShowResult } from "@/lib/utils";
 import { Info } from "lucide-react";
@@ -77,6 +78,7 @@ export default function DonationPage() {
     } else {
       toast.error("Event not found");
     }
+    setNewDoatins([]);
     setIsAddTableDialogOpen(false);
   };
 
@@ -97,14 +99,39 @@ export default function DonationPage() {
     }
   };
 
-  const handleSaveRow = (rowData: IDonation) => {
+  const handleSaveRow = async (rowData: IDonation) => {
     if (rowData._id == -1) {
-      const maxId = newDonations.reduce(
-        (max, donation) => (donation._id > max ? donation._id : max),
+      const maxId = Math.max(
+        ...(tables ?? []).map((donation) => donation._id),
+        ...newDonations.map((donation) => donation._id),
         0
       );
       rowData._id = maxId + 1;
       setNewDoatins((prev) => [...prev, rowData]);
+    } else if (editingDonation && selectedEvent) {
+      const isOld = tables?.find((donation) => donation._id === rowData._id)
+        ? true
+        : false;
+      if (isOld) {
+        const response = await updateDonation(selectedEvent._id, rowData);
+        const data: CustomResponse<IDonation> = JSON.parse(response);
+        const status = ShowResult<IDonation>(data);
+        if (status) {
+          setTables((prev) =>
+            prev
+              ? prev.map((donation) =>
+                  donation._id === rowData._id ? data.data! : donation
+                )
+              : null
+          );
+        }
+      } else {
+        setNewDoatins((prev) =>
+          prev.map((donation) =>
+            donation._id === rowData._id ? rowData : donation
+          )
+        );
+      }
     }
     setIsRowDialogOpen(false);
   };
@@ -146,7 +173,9 @@ export default function DonationPage() {
       const data: CustomResponse<IDonation[]> = JSON.parse(response);
       const status = ShowResult<IDonation[]>(data);
       if (status && data.data) {
-        setTables(data.data);
+        setTables((prev) =>
+          prev ? [...prev, ...data.data!] : data.data ?? null
+        );
         setNewDoatins([]);
       }
     } else {

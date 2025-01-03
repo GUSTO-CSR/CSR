@@ -4,7 +4,6 @@ import { CustomResponse } from "@/app/custom-response";
 import connectMongo from "@/app/db/mongoConnect";
 import { IDonation } from "@/Schemas/DonationSchema";
 import EventModel, { IEvent } from "@/Schemas/EventSchema";
-import { forIn } from "lodash";
 
 async function getDonationByEvent(eventId: number): Promise<string> {
   await connectMongo();
@@ -62,8 +61,6 @@ async function createDonations(
     donations.forEach((donation) => {
       event.Donations?.push(donation);
     });
-
-    console.log(event.Donations);
 
     await event.save();
 
