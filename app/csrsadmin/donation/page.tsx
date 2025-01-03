@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SelectTable } from "@/components/admin/donation/SelectTable";
 import { getEventNamesAndIds } from "../apis/events/admin_events";
@@ -16,6 +16,16 @@ import {
 } from "../apis/donation/admin_donation";
 import { ShowResult } from "@/lib/utils";
 import { Info, Loader } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function DonationPage() {
   const [topics, setTopics] = useState<EventSummary[]>([]);
@@ -31,6 +41,7 @@ export default function DonationPage() {
   //Dialog States
   const [isAddTableDialogOpen, setIsAddTableDialogOpen] = useState(false);
   const [isRowDialogOpen, setIsRowDialogOpen] = useState(false);
+  const [isChangeEventDialogOpen, setIsChangeEventDialogOpen] = useState(false);
 
   //Loading States
   const [isEventNameLoading, setIsEventNameLoading] = useState(true);
@@ -183,13 +194,26 @@ export default function DonationPage() {
     }
   };
 
+  const handleChangeEvent = useCallback(() => {
+    if (newDonations.length > 0) {
+      setIsChangeEventDialogOpen(true);
+    } else {
+      setIsAddTableDialogOpen(true);
+    }
+  }, [newDonations]);
+
+  const handleConfirmChangeEvent = () => {
+    setIsChangeEventDialogOpen(false);
+    setIsAddTableDialogOpen(true);
+  };
+
   return (
     <main className="p-6 bg-gray-50 min-h-screen relative">
       <Toaster />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Donation Page</h1>
         <Button
-          onClick={() => setIsAddTableDialogOpen(true)}
+          onClick={handleChangeEvent}
           className="bg-blue-500 text-white hover:bg-blue-600"
         >
           {selectedEvent ? "Change Event" : "Select Event"}
@@ -210,6 +234,27 @@ export default function DonationPage() {
         onSave={handleSaveRow}
         initialData={editingDonation ?? undefined}
       />
+
+      <AlertDialog
+        open={isChangeEventDialogOpen}
+        onOpenChange={setIsChangeEventDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved new donations. Changing the event will discard
+              these changes. Are you sure you want to proceed?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmChangeEvent}>
+              Proceed
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {selectedEvent ? (
         isDonationDataLoading ? (
