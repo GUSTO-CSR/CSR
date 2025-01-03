@@ -5,6 +5,7 @@ import EventModel, { IEventData } from "@/Schemas/EventSchema";
 import { del, put } from "@vercel/blob";
 
 async function getEventNamesAndIds(): Promise<string> {
+  await connectMongo();
   const response: CustomResponse<EventSummary[]> = {
     status: false,
     message: "No Error Message Provided!",

@@ -8,7 +8,7 @@ interface DonationTableProps {
   rows: IDonation[];
   newRows: IDonation[];
   onAddRow: () => void;
-  onEditRow: (rowIndex: number) => void;
+  onEditRow: (donationId: number) => void;
   onDeleteRow: (rowIndex: number) => void;
   onDeleteTable: () => void;
 }
@@ -66,7 +66,7 @@ export function DonationTable({
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                     <Button
-                      onClick={() => onEditRow(rowIndex)}
+                      onClick={() => onEditRow(row._id)}
                       className="bg-yellow-500 text-white hover:bg-yellow-600 mr-2"
                     >
                       Edit
@@ -95,7 +95,7 @@ export function DonationTable({
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                     <Button
-                      onClick={() => onEditRow(rowIndex)}
+                      onClick={() => onEditRow(row._id)}
                       className="bg-yellow-500 text-white hover:bg-yellow-600 mr-2"
                     >
                       Edit

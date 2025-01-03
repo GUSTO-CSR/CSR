@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { IDonation } from "@/Schemas/DonationSchema";
@@ -18,6 +19,7 @@ export function RowDialog({
   const [rowData, setRowData] = useState<Partial<IDonation>>({});
 
   useEffect(() => {
+    console.log(initialData ?? undefined);
     if (initialData) {
       setRowData(initialData);
     } else {
@@ -33,6 +35,10 @@ export function RowDialog({
       Balance: 0,
       CreatedTime: new Date(),
     });
+  };
+
+  const resetData = () => {
+    setRowData(initialData ?? {});
   };
 
   if (!isOpen) return null;
@@ -86,7 +92,7 @@ export function RowDialog({
           <Button
             onClick={() => {
               onClose();
-              setEmptyDonation();
+              resetData();
             }}
             className="bg-gray-500 text-white hover:bg-gray-600"
           >

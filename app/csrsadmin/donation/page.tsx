@@ -78,14 +78,22 @@ export default function DonationPage() {
     setIsAddTableDialogOpen(false);
   };
 
-  const handleAddRow = (donationId?: number) => {
+  const handleAddRow = () => {
     setIsRowDialogOpen(true);
   };
 
-  const handleEditRow = (tableIndex: number, rowIndex: number) => {
-    // setCurrentTableIndex(tableIndex);
-    // setCurrentRowIndex(rowIndex);
-    // setIsRowDialogOpen(true);
+  const handleEditRow = (donationId: number) => {
+    console.log(donationId);
+    // console.log(editingDonation ?? undefined);
+    const donation =
+      tables?.find((donation) => donation._id === donationId) ||
+      newDonations.find((donation) => donation._id === donationId);
+    if (donation) {
+      setEditingDonation(donation);
+      setIsRowDialogOpen(true);
+    } else {
+      toast.error("Donation not found");
+    }
   };
 
   const handleSaveRow = (rowData: IDonation) => {
@@ -146,7 +154,7 @@ export default function DonationPage() {
           rows={tables}
           newRows={newDonations}
           onAddRow={handleAddRow}
-          onEditRow={(rowIndex) => handleEditRow(0, rowIndex)}
+          onEditRow={handleEditRow}
           onDeleteRow={(rowIndex) => handleDeleteRow(0, rowIndex)}
           onDeleteTable={() => handleDeleteTable(0)}
         />
