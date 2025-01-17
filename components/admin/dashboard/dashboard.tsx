@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import CardContainer from "./utils/CardContainer";
+import DisplayDonation from "./utils/DisplayDonation";
 
 export default function Dashboard() {
   return (
@@ -7,9 +8,11 @@ export default function Dashboard() {
       <h1 className="text-3xl font-extrabold text-center text-gray-800">
         Admin Dashboard
       </h1>
+      {/* TODO: Add skeleton for card contianer */}
       <Suspense fallback={"Loading..."}>
         <CardContainer />
       </Suspense>
+      <DisplayDonation />
     </section>
   );
 }

@@ -1,6 +1,8 @@
 import React from "react";
 import Card from "./Card";
-import { getDashboardData } from "./card-data";
+import getTotalEvents from "@/app/api/v1/homepage/utils/getTotalEvents";
+import getTotalMoneyDonated from "@/app/api/v1/homepage/utils/getTotalMoneyDonated";
+import getTotalMembers from "@/app/api/v1/homepage/utils/getTotalMembers";
 
 export interface ICard {
   id: number;
@@ -9,7 +11,9 @@ export interface ICard {
 }
 
 export default async function CardContainer() {
-  const { totalEvents, totalDonated, totalMembers } = await getDashboardData();
+  const totalEvents = await getTotalEvents();
+  const totalDonated = await getTotalMoneyDonated();
+  const totalMembers = await getTotalMembers();
 
   const cards: ICard[] = [
     { id: 1, title: "Total Events", value: totalEvents },
