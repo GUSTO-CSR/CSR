@@ -1,11 +1,9 @@
+"use server";
 import { CustomResponse } from "@/app/custom-response";
 import connectMongo from "@/app/db/mongoConnect";
 import ShowDonationModel, { IShowDonation } from "@/Schemas/ShowDonationSchema";
 
-export async function updateShowDonation(
-  _id: number,
-  eventId: number
-): Promise<string> {
+export async function updateShowDonation(eventId: number): Promise<string> {
   await connectMongo();
   const response: CustomResponse<null> = {
     status: false,
@@ -14,7 +12,7 @@ export async function updateShowDonation(
 
   try {
     const updated = await ShowDonationModel.updateOne(
-      { _id: _id },
+      { _id: 1 },
       { eventId: eventId }
     );
 
@@ -34,7 +32,7 @@ export async function updateShowDonation(
   return JSON.stringify(response);
 }
 
-export async function getSD(_id: number, eventId: number): Promise<string> {
+export async function getSD(): Promise<string> {
   await connectMongo();
   const response: CustomResponse<IShowDonation> = {
     status: false,
@@ -42,16 +40,23 @@ export async function getSD(_id: number, eventId: number): Promise<string> {
   };
 
   try {
-    const sd = await ShowDonationModel.findById(1);
+    // Check if a document with _id: 1 exists
+    let sd = await ShowDonationModel.findById(1);
 
-    if (sd) {
-      response.status = true;
-      response.message = "Show Donation Found!";
-      response.data = sd;
+    if (!sd) {
+      // Create a new document only if it doesn't exist
+      const newSD = new ShowDonationModel({
+        _id: 1,
+        eventId: 1,
+      });
+      sd = await newSD.save();
+      response.message = "New Show Donation Created!";
     } else {
-      response.status = false;
-      response.message = "Show Donation Not Found!";
+      response.message = "Show Donation Found!";
     }
+
+    response.status = true;
+    response.data = sd;
   } catch (error) {
     console.error("Error fetching events: ", error);
     response.error = true;
