@@ -33,3 +33,30 @@ export async function updateShowDonation(
 
   return JSON.stringify(response);
 }
+
+export async function getSD(_id: number, eventId: number): Promise<string> {
+  await connectMongo();
+  const response: CustomResponse<IShowDonation> = {
+    status: false,
+    message: "No Error Message Provided!",
+  };
+
+  try {
+    const sd = await ShowDonationModel.findById(1);
+
+    if (sd) {
+      response.status = true;
+      response.message = "Show Donation Found!";
+      response.data = sd;
+    } else {
+      response.status = false;
+      response.message = "Show Donation Not Found!";
+    }
+  } catch (error) {
+    console.error("Error fetching events: ", error);
+    response.error = true;
+    response.message = "Error Fetching Events!";
+  }
+
+  return JSON.stringify(response);
+}
