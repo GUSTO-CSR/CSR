@@ -1,270 +1,312 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-
-interface TableRow {
-  name: string;
-  batch: string; // Changed to string
-  amount: number;
-}
-
-interface TableData {
-  topic: string;
-  rows: TableRow[];
-}
+import { SelectTable } from "@/components/admin/donation/SelectTable";
+import { getEventNamesAndIds } from "../apis/events/admin_events";
+import { RowDialog } from "@/components/admin/donation/utils/RowDialog";
+import { DonationTable } from "@/components/admin/donation/utils/DonationTable";
+import { CustomResponse, EventSummary } from "@/app/custom-response";
+import toast, { Toaster } from "react-hot-toast";
+import { IDonation } from "@/Schemas/DonationSchema";
+import {
+  createDonations,
+  deleteDonation,
+  getDonationByEvent,
+  updateDonation,
+} from "../apis/donation/admin_donation";
+import { ShowResult } from "@/lib/utils";
+import { Info, Loader } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function DonationPage() {
-  const [tables, setTables] = useState<TableData[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isRowDialogOpen, setIsRowDialogOpen] = useState(false);
-  const [selectedTopic, setSelectedTopic] = useState("");
-  const [currentTableIndex, setCurrentTableIndex] = useState<number | null>(
+  const [topics, setTopics] = useState<EventSummary[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<EventSummary | null>(null);
+
+  //Donation Table States
+  const [tables, setTables] = useState<IDonation[] | null>(null);
+  const [newDonations, setNewDoatins] = useState<IDonation[]>([]);
+  const [editingDonation, setEditingDonation] = useState<IDonation | null>(
     null
   );
-  const [rowData, setRowData] = useState<TableRow>({
-    name: "",
-    batch: "",
-    amount: 0,
-  });
 
-  const topics = ["Topic A", "Topic B", "Topic C"]; // Dropdown topics
+  //Dialog States
+  const [isAddTableDialogOpen, setIsAddTableDialogOpen] = useState(false);
+  const [isRowDialogOpen, setIsRowDialogOpen] = useState(false);
+  const [isChangeEventDialogOpen, setIsChangeEventDialogOpen] = useState(false);
 
-  const handleAddTable = () => {
-    setIsDialogOpen(true);
-  };
+  //Loading States
+  const [isEventNameLoading, setIsEventNameLoading] = useState(true);
+  const [isDonationDataLoading, setIsDonationDataLoading] = useState(false);
 
-  const handleSaveTable = () => {
-    if (selectedTopic) {
-      setTables((prev) => [...prev, { topic: selectedTopic, rows: [] }]);
-      setSelectedTopic("");
-      setIsDialogOpen(false);
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  useEffect(() => {
+    fetchDonationData();
+  }, [selectedEvent]);
+
+  const fetchEvents = async () => {
+    setIsEventNameLoading(true);
+    const response = await getEventNamesAndIds();
+    const data: CustomResponse<EventSummary[]> = JSON.parse(response);
+    const status = ShowResult<EventSummary[]>(data);
+    if (status && data.data) {
+      setTopics(data.data);
     }
+    setIsEventNameLoading(false);
   };
 
-  const handleAddRow = (tableIndex: number) => {
-    setCurrentTableIndex(tableIndex);
-    setRowData({ name: "", batch: "", amount: 0 }); // Reset form data
+  const fetchDonationData = async () => {
+    setIsDonationDataLoading(true);
+    if (selectedEvent) {
+      const response = await getDonationByEvent(selectedEvent._id);
+      const data: CustomResponse<IDonation[]> = JSON.parse(response);
+      const status = ShowResult<IDonation[]>(data);
+      if (status) {
+        setTables(data.data!);
+      }
+    } else {
+      toast.error("No Event Selected");
+    }
+    setIsDonationDataLoading(false);
+  };
+
+  const handleAddTable = (eventId: number | undefined) => {
+    const selected = topics.find((topic) => topic._id === eventId);
+    if (selected) {
+      setSelectedEvent(selected);
+      setIsAddTableDialogOpen(false);
+    } else {
+      toast.error("Event not found");
+    }
+    setNewDoatins([]);
+    setIsAddTableDialogOpen(false);
+  };
+
+  const handleAddRow = () => {
+    setEditingDonation(null);
     setIsRowDialogOpen(true);
   };
 
-  const handleSaveRow = () => {
-    if (currentTableIndex !== null) {
-      setTables((prev) => {
-        const updatedTables = [...prev];
-        const newRow = { ...rowData }; // Ensure a new copy of rowData is created
-        updatedTables[currentTableIndex].rows = [
-          ...updatedTables[currentTableIndex].rows,
-          newRow,
-        ];
-        return updatedTables;
-      });
-      setIsRowDialogOpen(false);
+  const handleEditRow = (donationId: number) => {
+    const donation =
+      tables?.find((donation) => donation._id === donationId) ||
+      newDonations.find((donation) => donation._id === donationId);
+    if (donation) {
+      setEditingDonation(donation);
+      setIsRowDialogOpen(true);
+    } else {
+      toast.error("Donation not found");
     }
   };
 
-  const handleEditRow = (tableIndex: number, rowIndex: number) => {
-    setCurrentTableIndex(tableIndex);
-    setRowData({ ...tables[tableIndex].rows[rowIndex] }); // Load row data for editing
-    setIsRowDialogOpen(true);
+  const handleSaveRow = async (rowData: IDonation) => {
+    if (rowData._id == -1) {
+      const maxId = Math.max(
+        ...(tables ?? []).map((donation) => donation._id),
+        ...newDonations.map((donation) => donation._id),
+        0
+      );
+      rowData._id = maxId + 1;
+      setNewDoatins((prev) => [...prev, rowData]);
+    } else if (editingDonation && selectedEvent) {
+      const isOld = tables?.find((donation) => donation._id === rowData._id)
+        ? true
+        : false;
+      if (isOld) {
+        const response = await updateDonation(selectedEvent._id, rowData);
+        const data: CustomResponse<IDonation> = JSON.parse(response);
+        const status = ShowResult<IDonation>(data);
+        if (status) {
+          setTables((prev) =>
+            prev
+              ? prev.map((donation) =>
+                  donation._id === rowData._id ? data.data! : donation
+                )
+              : null
+          );
+        }
+      } else {
+        setNewDoatins((prev) =>
+          prev.map((donation) =>
+            donation._id === rowData._id ? rowData : donation
+          )
+        );
+      }
+    }
+    setIsRowDialogOpen(false);
   };
 
-  const handleDeleteRow = (tableIndex: number, rowIndex: number) => {
-    setTables((prev) => {
-      const updatedTables = [...prev];
-      updatedTables[tableIndex].rows.splice(rowIndex, 1);
-      return updatedTables;
-    });
+  const handleDeleteRow = async (donationId: number) => {
+    const donation = tables?.find((donation) => donation._id === donationId);
+    const newDonation = newDonations.find(
+      (donation) => donation._id === donationId
+    );
+
+    if (donation) {
+      if (selectedEvent) {
+        const reponse = await deleteDonation(selectedEvent?._id, donationId);
+
+        const data: CustomResponse<null> = JSON.parse(reponse);
+        const status = ShowResult<null>(data);
+        if (status) {
+          setTables((prev) =>
+            prev ? prev.filter((donation) => donation._id !== donationId) : null
+          );
+        }
+      }
+    } else if (newDonation) {
+      setNewDoatins((prev) =>
+        prev.filter((donation) => donation._id !== donationId)
+      );
+    } else {
+      toast.error("Donation Not Found!");
+    }
   };
 
   const handleDeleteTable = (tableIndex: number) => {
-    setTables((prev) => prev.filter((_, index) => index !== tableIndex));
+    // setTables((prev) => prev.filter((_, index) => index !== tableIndex));
+  };
+
+  const handleSaveNewDonations = async () => {
+    if (selectedEvent) {
+      const response = await createDonations(selectedEvent._id, newDonations);
+      const data: CustomResponse<IDonation[]> = JSON.parse(response);
+      const status = ShowResult<IDonation[]>(data);
+      if (status && data.data) {
+        setTables((prev) =>
+          prev ? [...prev, ...data.data!] : data.data ?? null
+        );
+        setNewDoatins([]);
+      }
+    } else {
+      toast.error("No Event Selected");
+    }
+  };
+
+  const handleChangeEvent = useCallback(() => {
+    if (newDonations.length > 0) {
+      setIsChangeEventDialogOpen(true);
+    } else {
+      setIsAddTableDialogOpen(true);
+    }
+  }, [newDonations]);
+
+  const handleConfirmChangeEvent = () => {
+    setIsChangeEventDialogOpen(false);
+    setIsAddTableDialogOpen(true);
   };
 
   return (
-    <main className="p-6 bg-gray-50 min-h-screen">
+    <main className="p-6 bg-gray-50 min-h-screen relative">
+      <Toaster />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Donation Page</h1>
         <Button
-          onClick={handleAddTable}
+          onClick={handleChangeEvent}
           className="bg-blue-500 text-white hover:bg-blue-600"
         >
-          Add New Table
+          {selectedEvent ? "Change Event" : "Select Event"}
         </Button>
       </div>
 
-      {/* Dialog for adding new table */}
-      {isDialogOpen && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-md w-80">
-            <h2 className="text-lg font-bold mb-4">Add New Table</h2>
-            <select
-              value={selectedTopic}
-              onChange={(e) => setSelectedTopic(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="" disabled>
-                Select a topic
-              </option>
-              {topics.map((topic, index) => (
-                <option key={index} value={topic}>
-                  {topic}
-                </option>
-              ))}
-            </select>
-            <div className="flex justify-end">
-              <Button
-                onClick={handleSaveTable}
-                className="bg-blue-500 text-white hover:bg-blue-600 mr-2"
-              >
-                Save
-              </Button>
-              <Button
-                onClick={() => setIsDialogOpen(false)}
-                className="bg-gray-500 text-white hover:bg-gray-600"
-              >
-                Cancel
-              </Button>
-            </div>
+      <SelectTable
+        isOpen={isAddTableDialogOpen}
+        onClose={() => setIsAddTableDialogOpen(false)}
+        onSave={handleAddTable}
+        topics={topics}
+        isLoading={isEventNameLoading}
+      />
+
+      <RowDialog
+        isOpen={isRowDialogOpen}
+        onClose={() => setIsRowDialogOpen(false)}
+        onSave={handleSaveRow}
+        initialData={editingDonation ?? undefined}
+      />
+
+      <AlertDialog
+        open={isChangeEventDialogOpen}
+        onOpenChange={setIsChangeEventDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved new donations. Changing the event will discard
+              these changes. Are you sure you want to proceed?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmChangeEvent}>
+              Proceed
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {selectedEvent ? (
+        isDonationDataLoading ? (
+          <div className="flex flex-col items-center justify-center h-64 rounded-lg shadow-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute p-5 z-10">
+            <Loader className="w-12 h-12 text-blue-500 mb-4 animate-spin" />
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+              Loading Donation Data
+            </h2>
+          </div>
+        ) : (
+          tables && (
+            <DonationTable
+              topic={selectedEvent.EventName}
+              rows={tables}
+              newRows={newDonations}
+              onAddRow={handleAddRow}
+              onEditRow={handleEditRow}
+              onDeleteRow={handleDeleteRow}
+              onDeleteTable={() => handleDeleteTable(0)}
+            />
+          )
+        )
+      ) : (
+        <div className="flex flex-col items-center justify-center h-64 rounded-lg shadow-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute p-5 z-10">
+          <Info className="w-12 h-12 text-blue-500 mb-4" />
+          <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+            No Event Selected
+          </h2>
+          <div className="text-center space-y-2 text-gray-600">
+            <p>
+              Click{" "}
+              <span className="font-medium text-blue-600">
+                &quot;Select Event&quot;
+              </span>{" "}
+              to load data.
+            </p>
+            <p>To change the event, click the same button.</p>
+            <p>The button is located at the top right of the screen.</p>
           </div>
         </div>
       )}
 
-      {/* Dialog for adding/editing a row */}
-      {isRowDialogOpen && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-md w-80">
-            <h2 className="text-lg font-bold mb-4">Add/Edit Row</h2>
-            <label className="block mb-2 text-sm font-medium">
-              Name
-              <input
-                type="text"
-                value={rowData.name}
-                onChange={(e) =>
-                  setRowData({ ...rowData, name: e.target.value })
-                }
-                placeholder="Enter name"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-            <label className="block mb-2 text-sm font-medium">
-              Batch Number
-              <input
-                type="text" // Input type is now text
-                value={rowData.batch}
-                onChange={(e) =>
-                  setRowData({ ...rowData, batch: e.target.value })
-                }
-                placeholder="Enter batch number"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-            <label className="block mb-2 text-sm font-medium">
-              Donate Amount
-              <input
-                type="number"
-                value={rowData.amount}
-                onChange={(e) =>
-                  setRowData({
-                    ...rowData,
-                    amount: parseFloat(e.target.value),
-                  })
-                }
-                placeholder="Enter donate amount"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-            <div className="flex justify-end">
-              <Button
-                onClick={handleSaveRow}
-                className="bg-blue-500 text-white hover:bg-blue-600 mr-2"
-              >
-                Save
-              </Button>
-              <Button
-                onClick={() => setIsRowDialogOpen(false)}
-                className="bg-gray-500 text-white hover:bg-gray-600"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
+      {newDonations.length > 0 && (
+        <div className="fixed bottom-6 right-6">
+          <Button
+            onClick={handleSaveNewDonations}
+            className="bg-green-500 text-white hover:bg-green-600"
+          >
+            Save
+          </Button>
         </div>
       )}
-
-      {/* Tables */}
-      {tables.map((table, index) => (
-        <div key={index} className="mb-8 bg-white p-4 rounded-lg shadow-md">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">{table.topic}</h2>
-            <div>
-              <Button
-                onClick={() => handleAddRow(index)}
-                className="bg-green-500 text-white hover:bg-green-600 mr-2"
-              >
-                Add Row
-              </Button>
-              <Button
-                onClick={() => handleDeleteTable(index)}
-                className="bg-red-500 text-white hover:bg-red-600"
-              >
-                Delete Table
-              </Button>
-            </div>
-          </div>
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-300 px-4 py-2">Name</th>
-                <th className="border border-gray-300 px-4 py-2">Batch No</th>
-                <th className="border border-gray-300 px-4 py-2">
-                  Donate Amount
-                </th>
-                <th className="border border-gray-300 px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {table.rows.length > 0 ? (
-                table.rows.map((row, rowIndex) => (
-                  <tr key={rowIndex} className="text-center">
-                    <td className="border border-gray-300 px-4 py-2">
-                      {row.name}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {row.batch}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      ${row.amount.toFixed(2)}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      <Button
-                        onClick={() => handleEditRow(index, rowIndex)}
-                        className="bg-yellow-500 text-white hover:bg-yellow-600 mr-2"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteRow(index, rowIndex)}
-                        className="bg-red-500 text-white hover:bg-red-600"
-                      >
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="border border-gray-300 px-4 py-2 text-gray-500"
-                  >
-                    No data available
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      ))}
     </main>
   );
 }

@@ -36,7 +36,7 @@ export default function EventWidget({
 
   return (
     <div
-      className={`w-96 aspect-[5/2] bg-gray-200 flex flex-row items-center rounded-lg border-2 border-main p-4 shadow-md cursor-pointer hover:bg-gray-100 ${
+      className={`w-96 aspect-[5/2] bg-gray-200 flex flex-row items-center rounded-lg  p-4 shadow-md cursor-pointer hover:bg-gray-100 ${
         shouldHideEvent ? "hidden" : ""
       }`}
     >
